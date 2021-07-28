@@ -1,0 +1,6 @@
+name: Haunted
+author: Exceptionflug
+version: 1.0
+main: de.cytooxien.haunted.HauntedGameMode
+depend: [Strider]
+description: Game mode side project inspired by the Hypixel Zombies PvE mode
