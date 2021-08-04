@@ -22,6 +22,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>simplixsoft-public</id>
+            <url>https://repo.simplix.dev/repository/simplixsoft-public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -72,6 +76,11 @@
             <artifactId>enderman.player.spigot-api</artifactId>
             <version>3.4.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.simplix-softworks</groupId>
+            <artifactId>simplixstorage</artifactId>
+            <version>3.2.3</version>
         </dependency>
     </dependencies>
 
