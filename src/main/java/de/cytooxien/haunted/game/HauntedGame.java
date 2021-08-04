@@ -2,6 +2,7 @@ package de.cytooxien.haunted.game;
 
 import de.cytooxien.haunted.HauntedGameMode;
 import de.cytooxien.haunted.handlers.HauntedLobbyStateHandler;
+import de.cytooxien.haunted.handlers.HauntedRunningStateHandler;
 import de.cytooxien.stats.api.spigot.SpigotStatsHopper;
 import de.cytooxien.stats.api.spigot.StatsManager;
 import de.cytooxien.strider.common.game.GameInfo;
@@ -54,4 +55,10 @@ public class HauntedGame extends Game<HauntedGameMode, HauntedPlayer, HauntedTea
     public SpigotStatsHopper getStatsHopper() {
         return statsHopper;
     }
+
+    public HauntedRunningStateHandler runningStateHandler() {
+        return (HauntedRunningStateHandler) getStateManager().getCurrentHandler();
+    }
+
+
 }

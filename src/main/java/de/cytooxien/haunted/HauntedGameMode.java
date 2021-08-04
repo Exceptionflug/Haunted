@@ -1,6 +1,7 @@
 package de.cytooxien.haunted;
 
 import de.cytooxien.haunted.game.HauntedGame;
+import de.cytooxien.haunted.handlers.HauntedRunningStateHandler;
 import de.cytooxien.strider.common.game.GameInfo;
 import de.cytooxien.strider.game.Game;
 import de.cytooxien.strider.game.gamemode.GameMode;

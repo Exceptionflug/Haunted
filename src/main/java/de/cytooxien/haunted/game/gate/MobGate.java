@@ -2,6 +2,7 @@ package de.cytooxien.haunted.game.gate;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,6 +20,7 @@ public final class MobGate {
     private final Location pos2;
     private final Location repairPos1;
     private final Location repairPos2;
+    private Player repairingPlayer;
 
     public MobGate(Location pos1, Location pos2, Location repairPos1, Location repairPos2) {
         this.pos1 = pos1;
@@ -88,6 +90,14 @@ public final class MobGate {
         return location.getBlockX() >= minX && location.getBlockX() <= maxX &&
                 location.getBlockY() >= minY && location.getBlockY() <= maxY &&
                 location.getBlockZ() >= minZ && location.getBlockZ() <= maxZ;
+    }
+
+    public Player repairingPlayer() {
+        return repairingPlayer;
+    }
+
+    public void repairingPlayer(Player repairingPlayer) {
+        this.repairingPlayer = repairingPlayer;
     }
 
     private static class MobGateBlock {

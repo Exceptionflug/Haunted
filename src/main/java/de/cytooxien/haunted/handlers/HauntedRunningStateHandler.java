@@ -4,6 +4,7 @@ import de.cytooxien.haunted.game.HauntedGame;
 import de.cytooxien.haunted.game.HauntedPlayer;
 import de.cytooxien.haunted.game.HauntedTeam;
 import de.cytooxien.haunted.game.gate.MobGate;
+import de.cytooxien.haunted.listeners.ToggleSneakListener;
 import de.cytooxien.strider.game.state.GameStateOption;
 import de.cytooxien.strider.game.state.handler.RunningStateHandler;
 import de.leonhard.storage.Yaml;
@@ -39,6 +40,8 @@ public class HauntedRunningStateHandler extends RunningStateHandler<HauntedGame,
         getOptions().set(GameStateOption.ITEM_PICKUP, false);
 
         getRunningStateOptions().set(StateOption.ANNOUNCE_DEATHS, true);
+
+        getGame().getEventManager().registerEvents(new ToggleSneakListener(getGame()));
     }
 
     @Override
@@ -58,6 +61,15 @@ public class HauntedRunningStateHandler extends RunningStateHandler<HauntedGame,
             mobGates.add(new MobGate(pos1, pos2, repairPos1, repairPos2));
         }
         Bukkit.getLogger().info("Loaded "+mobGates.size()+" mob gates");
+    }
+
+    public MobGate mobGateByRepairZone(Location location) {
+        for (MobGate mobGate : mobGates) {
+            if (mobGate.isInRepairZone(location)) {
+                return mobGate;
+            }
+        }
+        return null;
     }
 
     public Location getConfigLocation(String path) {
