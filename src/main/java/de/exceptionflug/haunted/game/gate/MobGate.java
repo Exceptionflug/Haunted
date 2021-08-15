@@ -1,4 +1,4 @@
-package de.cytooxien.haunted.game.gate;
+package de.exceptionflug.haunted.game.gate;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

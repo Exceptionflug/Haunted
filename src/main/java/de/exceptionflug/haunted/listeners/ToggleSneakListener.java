@@ -1,7 +1,10 @@
-package de.cytooxien.haunted.listeners;
+package de.exceptionflug.haunted.listeners;
 
-import de.cytooxien.haunted.game.HauntedGame;
-import de.cytooxien.haunted.game.gate.MobGate;
+import com.google.inject.Inject;
+import de.exceptionflug.haunted.game.HauntedMap;
+import de.exceptionflug.haunted.game.gate.MobGate;
+import de.exceptionflug.projectvenom.game.GameContext;
+import de.exceptionflug.projectvenom.game.aop.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,19 +15,21 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
  *
  * @author Exceptionflug
  */
+@Component
 public final class ToggleSneakListener implements Listener {
 
-    private final HauntedGame game;
+    private final GameContext game;
 
-    public ToggleSneakListener(HauntedGame game) {
+    @Inject
+    public ToggleSneakListener(GameContext game) {
         this.game = game;
     }
 
     @EventHandler
     public void onToggle(PlayerToggleSneakEvent event) {
-        MobGate mobGate = game.runningStateHandler().mobGateByRepairZone(event.getPlayer().getLocation());
+        MobGate mobGate = game.<HauntedMap>currentMap().mobGateByRepairZone(event.getPlayer().getLocation());
         if (mobGate != null) {
-            game.getScheduler().runLaterSync(() -> {
+            Bukkit.getScheduler().runTaskLater(game.plugin(), () -> {
                 if (event.getPlayer().isSneaking()) {
                     if (mobGate.repairingPlayer() != null) {
                         event.getPlayer().sendMessage("§cDieses Tor wird bereits repariert!");
