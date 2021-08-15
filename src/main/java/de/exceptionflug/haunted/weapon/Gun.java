@@ -63,7 +63,7 @@ public class Gun implements Weapon {
         return itemStack;
     }
 
-    public void shoot() {
+    public void shoot(int slot) {
         if ((System.currentTimeMillis() - lastShot) < gunType.fireDelay()) {
             return;
         }
@@ -74,7 +74,7 @@ public class Gun implements Weapon {
                         reload();
                         return;
                     }
-                    slot = player.getInventory().getHeldItemSlot();
+                    this.slot = slot;
                     lastShot = System.currentTimeMillis();
                     rounds--;
                     player.getInventory().setItem(slot, updateItem());
@@ -171,7 +171,7 @@ public class Gun implements Weapon {
                 return;
             }
             if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                shoot();
+                shoot(slot);
             } else if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 reload();
             }
