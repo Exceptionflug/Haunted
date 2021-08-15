@@ -2,6 +2,7 @@ package de.exceptionflug.haunted.game;
 
 import com.destroystokyo.paper.Title;
 import de.exceptionflug.haunted.perk.Perk;
+import de.exceptionflug.haunted.section.MapSection;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.haunted.weapon.GunType;
 import de.exceptionflug.haunted.weapon.Weapon;
@@ -49,6 +50,14 @@ public class HauntedPlayer extends GamePlayer {
         scoreboard = new LocalizedConfigBoard(SCOREBOARD_CONFIG);
         scoreboard.format("%gold%", abstractBoardHolder -> Integer.toString(gold));
         scoreboard.format("%kills%", abstractBoardHolder -> Integer.toString(kills));
+        scoreboard.format("%section%", abstractBoardHolder -> {
+            MapSection section = context.<HauntedMap>currentMap().mapSection(getLocation());
+            if (section == null) {
+                return "N/A";
+            } else {
+                return section.displayName();
+            }
+        });
         primaryWeapon = new Gun(GunType.PISTOL, this, context);
         secondaryWeapon = new Gun(GunType.POSEIDONS_REVENGE, this, context);
     }

@@ -1,5 +1,6 @@
 package de.exceptionflug.haunted.game.gate;
 
+import de.exceptionflug.haunted.util.CuboidRegion;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,32 +17,32 @@ import java.util.stream.Collectors;
 public final class MobGate {
 
     private final List<MobGateBlock> gateBlocks = new ArrayList<>();
-    private final Location pos1;
-    private final Location pos2;
-    private final Location repairPos1;
-    private final Location repairPos2;
+    private final CuboidRegion gateRegion;
+    private final CuboidRegion repairRegion;
+    private final Location spawnLocation;
+    private final String mapSection;
     private Player repairingPlayer;
 
-    public MobGate(Location pos1, Location pos2, Location repairPos1, Location repairPos2) {
-        this.pos1 = pos1;
-        this.pos2 = pos2;
-        this.repairPos1 = repairPos1;
-        this.repairPos2 = repairPos2;
+    public MobGate(Location pos1, Location pos2, Location repairPos1, Location repairPos2, Location spawnLocation, String mapSection) {
+        this.gateRegion = new CuboidRegion(pos1, pos2);
+        this.repairRegion = new CuboidRegion(repairPos1, repairPos2);
+        this.spawnLocation = spawnLocation;
+        this.mapSection = mapSection;
         recordGateBlocks();
     }
 
     private void recordGateBlocks() {
-        int minX = Math.min(pos1.getBlockX(), pos2.getBlockX());
-        int minY = Math.min(pos1.getBlockY(), pos2.getBlockY());
-        int minZ = Math.min(pos1.getBlockZ(), pos2.getBlockZ());
-        int maxX = Math.max(pos1.getBlockX(), pos2.getBlockX());
-        int maxY = Math.max(pos1.getBlockY(), pos2.getBlockY());
-        int maxZ = Math.max(pos1.getBlockZ(), pos2.getBlockZ());
+        int minX = Math.min(gateRegion.pos1().getBlockX(), gateRegion.pos2().getBlockX());
+        int minY = Math.min(gateRegion.pos1().getBlockY(), gateRegion.pos2().getBlockY());
+        int minZ = Math.min(gateRegion.pos1().getBlockZ(), gateRegion.pos2().getBlockZ());
+        int maxX = Math.max(gateRegion.pos1().getBlockX(), gateRegion.pos2().getBlockX());
+        int maxY = Math.max(gateRegion.pos1().getBlockY(), gateRegion.pos2().getBlockY());
+        int maxZ = Math.max(gateRegion.pos1().getBlockZ(), gateRegion.pos2().getBlockZ());
 
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    Location location = new Location(pos1.getWorld(), x, y, z);
+                    Location location = new Location(gateRegion.pos1().getWorld(), x, y, z);
                     gateBlocks.add(new MobGateBlock(location, location.getBlock().getType()));
                 }
             }
@@ -81,15 +82,7 @@ public final class MobGate {
     }
 
     public boolean isInRepairZone(Location location) {
-        int minX = Math.min(repairPos1.getBlockX(), repairPos2.getBlockX());
-        int minY = Math.min(repairPos1.getBlockY(), repairPos2.getBlockY());
-        int minZ = Math.min(repairPos1.getBlockZ(), repairPos2.getBlockZ());
-        int maxX = Math.max(repairPos1.getBlockX(), repairPos2.getBlockX());
-        int maxY = Math.max(repairPos1.getBlockY(), repairPos2.getBlockY());
-        int maxZ = Math.max(repairPos1.getBlockZ(), repairPos2.getBlockZ());
-        return location.getBlockX() >= minX && location.getBlockX() <= maxX &&
-                location.getBlockY() >= minY && location.getBlockY() <= maxY &&
-                location.getBlockZ() >= minZ && location.getBlockZ() <= maxZ;
+        return repairRegion.isInside(location);
     }
 
     public Player repairingPlayer() {
@@ -98,6 +91,14 @@ public final class MobGate {
 
     public void repairingPlayer(Player repairingPlayer) {
         this.repairingPlayer = repairingPlayer;
+    }
+
+    public Location spawnLocation() {
+        return spawnLocation;
+    }
+
+    public String mapSection() {
+        return mapSection;
     }
 
     private static class MobGateBlock {

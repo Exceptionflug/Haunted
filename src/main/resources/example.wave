@@ -1,0 +1,17 @@
+WAVE 1
+
+LOOP 10 {
+    WAIT 10
+    SPAWN de.exceptionflug.haunted.monsters.ZombieMonster AUTOMATIC
+}
+
+WAIT CLEARED
+
+SPAWN de.exceptionflug.haunted.monster.boss.TestMagicBoss [14.0,23.0,54.0]
+
+CINEMATIC 60 {
+    VERTEX [14.0,23.0,54.0]
+    VERTEX [32.0,23.0,52.0]
+}
+
+TELEPORT [14.0,23.0,32.0]

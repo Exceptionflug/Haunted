@@ -3,15 +3,13 @@ package de.exceptionflug.haunted.phases;
 import com.destroystokyo.paper.event.entity.ThrownEggHatchEvent;
 import com.google.inject.Inject;
 import de.exceptionflug.haunted.game.HauntedPlayer;
+import de.exceptionflug.haunted.wave.AbstractWave;
+import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.phases.IngamePhase;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.GameMode;
-import org.bukkit.Particle;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Mob;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -22,6 +20,9 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Date: 10.08.2021
  *
@@ -31,6 +32,7 @@ public class HauntedIngamePhase extends IngamePhase {
 
     private long startedSince;
     private BukkitTask task;
+    private AbstractWave wave;
 
     @Inject
     public HauntedIngamePhase(GameContext context) {
@@ -48,6 +50,15 @@ public class HauntedIngamePhase extends IngamePhase {
     public void onStop() {
         super.onStop();
         task.cancel();
+    }
+
+    public void initWave(AbstractWave wave) {
+        if (this.wave != null) {
+            this.wave.disable();
+        }
+        this.wave = wave;
+        wave.enable();
+        Message.broadcast(context().players(), context().messageConfiguration(), "Messages.waveBroadcast", "§7Welle §6%wave% §7beginnt!", "%wave%", Integer.toString(wave.wave()));
     }
 
     private void startScoreboardUpdater() {

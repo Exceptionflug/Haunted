@@ -9,9 +9,7 @@ import de.exceptionflug.mccommons.commands.api.input.CommandInput;
 import de.exceptionflug.mccommons.commands.spigot.command.SpigotCommand;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Date: 14.08.2021
