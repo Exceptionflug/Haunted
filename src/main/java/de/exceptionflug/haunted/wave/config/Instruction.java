@@ -31,6 +31,7 @@ public class Instruction {
         LOOP(new Argument(Structure.INTEGER), new Argument(Structure.BLOCK)),
         CINEMATIC(new Argument(Structure.INTEGER), new Argument(Structure.BLOCK)),
         VERTEX(new Argument(Structure.LOCATION)),
+        TARGET(new Argument(Structure.LOCATION)),
         SOUND(new Argument(Structure.SOUND), new Argument(Structure.DOUBLE), new Argument(Structure.DOUBLE)),
         END();
 

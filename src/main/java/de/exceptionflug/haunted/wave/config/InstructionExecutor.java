@@ -2,11 +2,15 @@ package de.exceptionflug.haunted.wave.config;
 
 import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.wave.ConfiguredWave;
+import de.exceptionflug.regisseur.Cutscene;
+import de.exceptionflug.regisseur.path.Position;
+import de.exceptionflug.regisseur.path.Vector3D;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.List;
 
@@ -74,7 +78,22 @@ public class InstructionExecutor {
                     }
                 });
             } else if (instruction.type() == Instruction.InstructionType.CINEMATIC) {
-
+                if (instruction.arguments()[1] instanceof WaveConfigurationParser.CodeBlock block) {
+                    Cutscene cutscene = new Cutscene(wave.context().plugin());
+                    cutscene.players().addAll(wave.context().players());
+                    for (Instruction insn : block.instructions()) {
+                        if (insn.type() == Instruction.InstructionType.VERTEX) {
+                            Location location = (Location) insn.arguments()[0];
+                            cutscene.addWaypoint(new Position(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch()));
+                        } else if (insn.type() == Instruction.InstructionType.TARGET) {
+                            Location location = (Location) insn.arguments()[0];
+                            cutscene.target(new Vector3D(location.getX(), location.getY(), location.getZ()));
+                        }
+                    }
+                    Bukkit.getScheduler().runTask(wave.context().plugin(), () -> {
+                        cutscene.startTravelling((int) instruction.arguments()[0], 5);
+                    });
+                }
             } else if (instruction.type() == Instruction.InstructionType.SOUND) {
                 float volume = ((Double) instruction.arguments()[1]).floatValue();
                 float pitch = ((Double) instruction.arguments()[2]).floatValue();

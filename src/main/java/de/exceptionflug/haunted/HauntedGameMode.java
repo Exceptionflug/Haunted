@@ -7,6 +7,7 @@ import de.exceptionflug.haunted.phases.HauntedLobbyPhase;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.GameContextBuilder;
 import de.exceptionflug.projectvenom.game.behaviours.RoundBasedGameBehaviour;
+import de.exceptionflug.regisseur.Cutscene;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -27,4 +28,8 @@ public class HauntedGameMode extends JavaPlugin {
                 .createGameContext();
     }
 
+    @Override
+    public void onDisable() {
+        Cutscene.shutdown();
+    }
 }
