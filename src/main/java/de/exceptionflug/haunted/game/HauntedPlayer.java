@@ -94,10 +94,12 @@ public class HauntedPlayer extends GamePlayer {
     public void createLayingBody(Location location) {
         body = new NPC(location, (GameProfile) WrappedGameProfile.fromPlayer(getPlayer()).getHandle());
         body.spawn();
-        sneakHologram = Holograms.createHologram(location.clone().add(0, 1, 0));
-        sneakHologram.appendLine("Schleichen zum Wiederbeleben");
-        secondsLine = sneakHologram.appendLine("§e30s");
-        Bukkit.getScheduler().runTaskAsynchronously(context().plugin(), () -> sneakHologram.spawn());
+        Bukkit.getScheduler().runTaskAsynchronously(context().plugin(), () -> {
+            sneakHologram = Holograms.createHologram(location.add(0, 0.5, 0));
+            sneakHologram.appendLine("§7Schleichen zum §cWiederbeleben");
+            secondsLine = sneakHologram.appendLine("§e30s");
+            sneakHologram.spawn();
+        });
     }
 
     public void revive() {
@@ -155,7 +157,7 @@ public class HauntedPlayer extends GamePlayer {
         if (dead && revivable) {
             respawnTimer --;
             setLevel(respawnTimer);
-            String color = respawnTimer < 10 ? "§c" : "e";
+            String color = respawnTimer < 10 ? "§c" : "§e";
             secondsLine.setText(color + respawnTimer + "s");
             if (respawnTimer != 0) {
                 setExp(respawnTimer / 30F);

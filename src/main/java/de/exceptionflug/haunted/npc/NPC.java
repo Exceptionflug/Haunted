@@ -1,16 +1,20 @@
 package de.exceptionflug.haunted.npc;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.*;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import com.mojang.authlib.GameProfile;
+import de.exceptionflug.haunted.HauntedGameMode;
 import de.exceptionflug.mccommons.core.packetwrapper.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Collections;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -22,6 +26,7 @@ public class NPC {
 
     private final Location location;
     private final GameProfile gameProfile;
+    private final UUID uuid = UUID.randomUUID();
     private final int entityId = ThreadLocalRandom.current().nextInt(20000, 30000);
 
     public NPC(Location location, GameProfile gameProfile) {
@@ -30,9 +35,13 @@ public class NPC {
     }
 
     public void spawn() {
+        sendPacket(createPlayerInfoPacket(EnumWrappers.PlayerInfoAction.ADD_PLAYER));
         sendPacket(createSpawnPacket());
         sendPacket(createBedDeclarePacket());
         sendPacket(createLayingPacket());
+        Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(HauntedGameMode.class), () -> {
+            sendPacket(createPlayerInfoPacket(EnumWrappers.PlayerInfoAction.REMOVE_PLAYER));
+        }, 10);
     }
 
     public void despawn() {
@@ -41,6 +50,9 @@ public class NPC {
 
     private void sendPacket(PacketContainer packetContainer) {
         Bukkit.getOnlinePlayers().forEach(player -> {
+            if (gameProfile.getId().equals(player.getUniqueId()) && packetContainer.getType() == PacketType.Play.Server.PLAYER_INFO) {
+                return;
+            }
             try {
                 ProtocolLibrary.getProtocolManager().sendServerPacket(player, packetContainer);
             } catch (Exception exception) {
