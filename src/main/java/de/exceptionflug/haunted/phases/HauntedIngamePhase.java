@@ -2,7 +2,9 @@ package de.exceptionflug.haunted.phases;
 
 import com.destroystokyo.paper.event.entity.ThrownEggHatchEvent;
 import com.google.inject.Inject;
+import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
+import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.wave.AbstractWave;
 import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
@@ -44,6 +46,9 @@ public class HauntedIngamePhase extends IngamePhase {
         super.onStart();
         startedSince = System.currentTimeMillis();
         startScoreboardUpdater();
+        Bukkit.getScheduler().runTaskAsynchronously(context().plugin(), () -> {
+            context().<HauntedMap>currentMap().sectionGates().forEach(SectionGate::spawnHologram);
+        });
     }
 
     @Override

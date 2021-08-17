@@ -4,6 +4,10 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Location;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Date: 15.08.2021
  *
@@ -31,6 +35,24 @@ public class CuboidRegion {
         return location.getBlockX() >= minX && location.getBlockX() <= maxX &&
                 location.getBlockY() >= minY && location.getBlockY() <= maxY &&
                 location.getBlockZ() >= minZ && location.getBlockZ() <= maxZ;
+    }
+
+    public List<Location> locations() {
+        List<Location> out = new ArrayList<>();
+        int minX = Math.min(pos1.getBlockX(), pos2.getBlockX());
+        int minY = Math.min(pos1.getBlockY(), pos2.getBlockY());
+        int minZ = Math.min(pos1.getBlockZ(), pos2.getBlockZ());
+        int maxX = Math.max(pos1.getBlockX(), pos2.getBlockX());
+        int maxY = Math.max(pos1.getBlockY(), pos2.getBlockY());
+        int maxZ = Math.max(pos1.getBlockZ(), pos2.getBlockZ());
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    out.add(new Location(pos1.getWorld(), x, y, z));
+                }
+            }
+        }
+        return out;
     }
     
 }

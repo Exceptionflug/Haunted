@@ -1,6 +1,8 @@
 package de.exceptionflug.haunted.game;
 
+import de.exceptionflug.haunted.DebugUtil;
 import de.exceptionflug.haunted.game.gate.MobGate;
+import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.section.MapSection;
 import de.exceptionflug.haunted.util.CuboidRegion;
 import de.exceptionflug.haunted.wave.AbstractWave;
@@ -12,13 +14,11 @@ import de.exceptionflug.projectvenom.game.map.AbstractGameMap;
 import de.exceptionflug.projectvenom.game.map.teleporters.PerPlayerTeleporter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.checkerframework.checker.units.qual.C;
+import org.bukkit.Material;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
@@ -31,6 +31,7 @@ public class HauntedMap extends AbstractGameMap {
 
     private final Map<Integer, AbstractWave> waveMap = new ConcurrentHashMap<>();
     private final List<MobGate> mobGates = new ArrayList<>();
+    private final Map<String, SectionGate> sectionGates = new ConcurrentHashMap<>();
     private final Map<String, MapSection> sections = new ConcurrentHashMap<>();
     private final GameContext context;
 
@@ -44,7 +45,21 @@ public class HauntedMap extends AbstractGameMap {
         super.onSelect(); // Perform world load
         loadMapSections();
         loadMobGates();
+        loadSectionGates();
         loadWaves();
+    }
+
+    private void loadSectionGates() {
+        for (String key : config().getKeys("sectiongates")) {
+            Location pos1 = config().getLocation("sectiongates."+key+".gate.pos1");
+            Location pos2 = config().getLocation("sectiongates."+key+".gate.pos2");
+            Location hologram = config().getLocation("sectiongates."+key+".hologram");
+            int price = config().getOrSetDefault("sectiongates."+key+".price", 1000);
+            Set<String> materials = new HashSet<>(config().getOrSetDefault("sectiongates."+key+".materials", Collections.singletonList(Material.IRON_BLOCK.name())));
+            String displayName = config().getOrSetDefault("sectiongates."+key+".displayName", "Bill Gates");
+            sectionGates.put(key, new SectionGate(new CuboidRegion(pos1, pos2), materials, hologram, displayName, price));
+        }
+        Bukkit.getLogger().info("Loaded "+mobGates.size()+" mob gates");
     }
 
     private void loadWaves() {
@@ -108,6 +123,19 @@ public class HauntedMap extends AbstractGameMap {
         return null;
     }
 
+    public SectionGate sectionGate(Location location) {
+        for (SectionGate section : sectionGates.values()) {
+            if (section.isGateBlock(location)) {
+                return section;
+            }
+        }
+        return null;
+    }
+
+    public SectionGate sectionGate(String name) {
+        return sectionGates.get(name);
+    }
+
     public MapSection mapSection(String name) {
         return sections.get(name);
     }
@@ -118,5 +146,9 @@ public class HauntedMap extends AbstractGameMap {
 
     public List<MobGate> mobGates() {
         return mobGates;
+    }
+
+    public Collection<SectionGate> sectionGates() {
+        return sectionGates.values();
     }
 }
