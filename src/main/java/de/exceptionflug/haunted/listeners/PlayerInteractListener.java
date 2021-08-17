@@ -5,6 +5,7 @@ import de.exceptionflug.haunted.DebugUtil;
 import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.game.gate.SectionGate;
+import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
 import org.bukkit.event.EventHandler;
@@ -46,6 +47,7 @@ public final class PlayerInteractListener implements Listener {
             }
             player.gold(player.gold() - sectionGate.price());
             sectionGate.unlock();
+            Message.broadcast(context.players(), context.messageConfiguration(), "Messages.gateOpened", "§6%player% §7hat das Tor %gate% §7geöffnet", "%player%", player.getName(), "%gate%", sectionGate.displayName());
         }
     }
 

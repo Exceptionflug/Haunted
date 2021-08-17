@@ -1,13 +1,20 @@
 package de.exceptionflug.haunted.game;
 
+import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.destroystokyo.paper.Title;
+import com.mojang.authlib.GameProfile;
+import de.exceptionflug.haunted.npc.NPC;
 import de.exceptionflug.haunted.perk.Perk;
 import de.exceptionflug.haunted.section.MapSection;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.haunted.weapon.GunType;
 import de.exceptionflug.haunted.weapon.Weapon;
 import de.exceptionflug.mccommons.config.shared.ConfigFactory;
+import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.mccommons.config.spigot.SpigotConfig;
+import de.exceptionflug.mccommons.holograms.Hologram;
+import de.exceptionflug.mccommons.holograms.Holograms;
+import de.exceptionflug.mccommons.holograms.line.TextHologramLine;
 import de.exceptionflug.mccommons.scoreboards.Scoreboards;
 import de.exceptionflug.mccommons.scoreboards.localized.LocalizedConfigBoard;
 import de.exceptionflug.projectvenom.game.GameContext;
@@ -15,7 +22,9 @@ import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -44,6 +53,9 @@ public class HauntedPlayer extends GamePlayer {
     private Weapon secondaryWeapon;
     private Perk primaryPerk;
     private Perk secondaryPerk;
+    private Hologram sneakHologram;
+    private TextHologramLine secondsLine;
+    private NPC body;
 
     public HauntedPlayer(Player handle, GameContext context) {
         super(handle, context);
@@ -69,11 +81,23 @@ public class HauntedPlayer extends GamePlayer {
         respawnTimer = 30;
         setSpectator(false);
         if (revivable) {
-            getPlayer().sendTitle(new Title("§7Du bist gestorben!", "§eDu kannst wiederbelebt werden", 10, 40, 10));
+            Message.broadcast(context().players(), context().messageConfiguration(), "Messages.playerUnconscious", "§6%player% §7ist außer Gefecht! Du hast 30 Sekunden Zeit ihn oder sie wiederzubeleben.", "%player%", getName());
+            getPlayer().sendTitle(new Title("§7Du bist außer Gefecht!", "§eDu kannst noch wiederbelebt werden", 10, 40, 10));
+            context().players().forEach(player -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1));
+            createLayingBody(deathLocation.clone().add(0, 0.2, 0));
         }
         setExp(1);
         setLevel(30);
         setHealth(20);
+    }
+
+    public void createLayingBody(Location location) {
+        body = new NPC(location, (GameProfile) WrappedGameProfile.fromPlayer(getPlayer()).getHandle());
+        body.spawn();
+        sneakHologram = Holograms.createHologram(location.clone().add(0, 1, 0));
+        sneakHologram.appendLine("Schleichen zum Wiederbeleben");
+        secondsLine = sneakHologram.appendLine("§e30s");
+        Bukkit.getScheduler().runTaskAsynchronously(context().plugin(), () -> sneakHologram.spawn());
     }
 
     public void revive() {
@@ -85,21 +109,16 @@ public class HauntedPlayer extends GamePlayer {
         setAlive(false);
         teleport(deathLocation);
         getPlayer().sendTitle(new Title("§aDu wurdest gerettet!", "", 10, 40, 10));
+        removeLayingBody();
+    }
+
+    private void removeLayingBody() {
+        body.despawn();
+        sneakHologram.despawn();
     }
 
     public void giveGold(int gold) {
         this.gold += gold;
-    }
-
-    public void gameTick() {
-        if (dead && revivable) {
-            respawnTimer --;
-            if (respawnTimer == 0) {
-                revivable = false;
-            }
-            setLevel(respawnTimer);
-            setExp(respawnTimer / 30F);
-        }
     }
 
     @Override
@@ -131,4 +150,22 @@ public class HauntedPlayer extends GamePlayer {
         giveIngameItems();
     }
 
+    public void update() {
+        scoreboard.update();
+        if (dead && revivable) {
+            respawnTimer --;
+            setLevel(respawnTimer);
+            String color = respawnTimer < 10 ? "§c" : "e";
+            secondsLine.setText(color + respawnTimer + "s");
+            if (respawnTimer != 0) {
+                setExp(respawnTimer / 30F);
+            } else {
+                revivable = false;
+                sneakHologram.despawn();
+                getPlayer().sendTitle(new Title("§cDu bist gestorben!", "§7Du wirst am Anfang der nächsten Welle wiederbelebt", 10, 40, 10));
+                Message.broadcast(context().players(), context().messageConfiguration(), "Messages.playerDied", "§6%player% §7ist gestorben! Er oder sie wird am Anfang der nächsten Welle wiederbelebt.", "%player%", getName());
+                context().players().forEach(player -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 0));
+            }
+        }
+    }
 }
