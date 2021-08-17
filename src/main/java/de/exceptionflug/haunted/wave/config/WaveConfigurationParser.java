@@ -8,8 +8,7 @@ import lombok.experimental.Accessors;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Date: 15.08.2021
@@ -23,6 +22,7 @@ public class WaveConfigurationParser {
     private final GameContext context;
     private final File file;
     private final List<String> lines;
+    private final Map<String, Structure> declaredVariables = new HashMap<>();
     private final int wave;
     private int lineIndex;
 
@@ -49,56 +49,142 @@ public class WaveConfigurationParser {
         }
     }
 
-    public Instruction nextInstruction() throws ParseException {
+    public Statement nextStatement() throws ParseException {
         if (lineIndex == lines.size() - 1) {
             return null;
         }
         lineIndex ++;
         String statement = lines.get(lineIndex).trim();
+        return nextStatement(statement);
+    }
+
+    public Statement nextStatement(String statement) throws ParseException {
         if (statement.equals("}")) {
             throw new BlockEndSignal();
         }
         if (statement.isEmpty() || statement.startsWith("//")) {
-            return nextInstruction();
+            return nextStatement();
         }
         String[] split = statement.split(" ");
-        Instruction.InstructionType type;
+        Statement.InstructionType type;
         try {
-            type = Instruction.InstructionType.valueOf(split[0]);
+            type = Statement.InstructionType.valueOf(split[0]);
         } catch (IllegalArgumentException exception) {
             throw new ParseException("Unexpected token '"+split[0]+"'", file.getName(), lineIndex + 1);
-        }
-        if (split.length-1 != type.arguments().length) {
-            throw new ParseException("Unexpected argument count for instruction "+type.name()+": Expected exactly "+type.arguments().length+" arguments",
-                    file.getName(), lineIndex + 1);
         }
         if (split.length > 1) {
             String[] args = new String[split.length - 1];
             System.arraycopy(split, 1, args, 0, args.length);
             Object[] arguments = parseArguments(type, args);
-            return new Instruction(type, arguments);
+            if (type == Statement.InstructionType.DECLARE) {
+                if (declaredVariables.containsKey((String) arguments[1])) {
+                    throw new ParseException("Variable with name "+arguments[1]+" already declared", file.getName(), lineIndex + 1);
+                }
+                declaredVariables.put((String) arguments[1], (Structure) arguments[0]);
+            }
+            if (arguments.length != type.arguments().length) {
+                throw new ParseException("Unexpected argument count for instruction "+type.name()+": Expected exactly "+type.arguments().length+" arguments but got "+arguments.length,
+                        file.getName(), lineIndex + 1);
+            }
+            return new Statement(type, arguments);
         }
-        return new Instruction(type);
+        if (type.arguments().length != 0) {
+            throw new ParseException("Unexpected argument count for instruction "+type.name()+": Expected exactly "+type.arguments().length+" arguments but got 0",
+                    file.getName(), lineIndex + 1);
+        }
+        return new Statement(type);
     }
 
-    private Object[] parseArguments(Instruction.InstructionType type, String[] args) throws ParseException {
-        Object[] out = new Object[args.length];
+    private Object[] parseArguments(Statement.InstructionType type, String[] args) throws ParseException {
+        List<Object> out = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+        boolean string = false;
+        int typeArgCounter = 0;
+        Structure structure = null;
         for (int i = 0; i < args.length; i++) {
             String argument = args[i];
-            if (argument.equals("{")) {
-                out[i] = readBlock();
+            if (string) {
+                builder.append(" ").append(argument);
+                if (argument.endsWith("\"")) {
+                    string = false;
+                    out.add(type.arguments()[typeArgCounter].parseArgument(this, typeArgCounter, builder.toString(), Structure.STRING));
+                    typeArgCounter ++;
+                }
+                continue;
+            }
+            if (argument.startsWith("$")) {
+                String variable = argument.substring(1);
+                if (!declaredVariables.containsKey(variable)) {
+                    throw new ParseException("Unknown variable "+variable, file.getName(), lineIndex + 1);
+                }
+                if (!type.arguments()[typeArgCounter].allowedStructure(declaredVariables.get(variable))) {
+                    throw new ParseException("Variable type mismatch: Expected " +
+                            Arrays.toString(type.arguments()[i].structures()) + " but got "+declaredVariables.get(variable).name(), file.getName(), lineIndex + 1);
+                }
+                out.add(new Variable(variable));
+                typeArgCounter ++;
+            } else if (argument.equals("{")) {
+                out.add(readBlock());
+                typeArgCounter ++;
+            } else if (argument.startsWith("(")) {
+                Map.Entry<Integer, Statement> entry = parseStatement(args, i, type, typeArgCounter, structure);
+                i = entry.getKey();
+                out.add(entry.getValue());
+            } else if (argument.startsWith("\"")) {
+                string = true;
+                builder = new StringBuilder().append(argument);
             } else {
-                out[i] = type.arguments()[i].parseArgument(this, i, argument);
+                if (type == Statement.InstructionType.DEFINE) {
+                    if (type.arguments()[typeArgCounter].allowedStructure(Structure.SPECIFIER)) {
+                        structure = declaredVariables.get(argument);
+                    }
+                }
+                out.add(type.arguments()[typeArgCounter].parseArgument(this, typeArgCounter, argument, structure));
+                typeArgCounter ++;
             }
         }
-        return out;
+        return out.toArray();
+    }
+
+    private Map.Entry<Integer, Statement> parseStatement(String[] args, int beginIndex, Statement.InstructionType type, int typeArgCounter, Structure structure) throws ParseException {
+        StringBuilder builder = new StringBuilder();
+        int level = 0;
+        for (int i = beginIndex; i < args.length; i++) {
+            String argument = args[i];
+            builder.append(" ").append(argument);
+            if (argument.endsWith(")")) {
+                level --;
+                if (level == 0) {
+                    Statement parsedStatement = (Statement) type.arguments()[typeArgCounter].parseArgument(this, typeArgCounter, builder.toString().trim(), Structure.STATEMENT);
+                    Structure returnType = parsedStatement.type().returnType();
+                    if (returnType == null) {
+                        throw new ParseException("Statements with no return type cannot be used inline", file.getName(), lineIndex + 1);
+                    }
+                    if (structure != null) {
+                        if (structure != returnType) {
+                            throw new ParseException("Statement return type mismatch: Expected " +
+                                    structure.name() + " but got "+ returnType.name(), file.getName(), lineIndex + 1);
+                        }
+                    } else {
+                        if (!type.arguments()[typeArgCounter].allowedStructure(returnType)) {
+                            throw new ParseException("Statement return type mismatch: Expected " +
+                                    Arrays.toString(type.arguments()[typeArgCounter].structures()) + " but got "+ returnType.name(), file.getName(), lineIndex + 1);
+                        }
+                    }
+                    return new AbstractMap.SimpleEntry<>(i, parsedStatement);
+                }
+            } else if (argument.startsWith("(")) {
+                level ++;
+            }
+        }
+        throw new ParseException("Statement was never closed", file.getName(), lineIndex + 1);
     }
 
     private CodeBlock readBlock() throws ParseException {
         CodeBlock block = new CodeBlock();
         while (!Thread.interrupted()) {
             try {
-                block.instructions.add(nextInstruction());
+                block.statements.add(nextStatement());
             } catch (BlockEndSignal endSignal) {
                 break;
             }
@@ -110,8 +196,26 @@ public class WaveConfigurationParser {
     @Accessors(fluent = true)
     static class CodeBlock {
 
-        private final List<Instruction> instructions = new ArrayList<>();
+        private final List<Statement> statements = new ArrayList<>();
 
+        @Override
+        public String toString() {
+            return "CodeBlock{" +
+                    "statements=" + statements +
+                    '}';
+        }
+    }
+
+
+    @Getter
+    @Accessors(fluent = true)
+    static class Variable {
+
+        private final String name;
+
+        Variable(String name) {
+            this.name = name;
+        }
     }
 
     static class BlockEndSignal extends Error {

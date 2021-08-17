@@ -15,11 +15,16 @@ public enum Structure {
 
     INTEGER(new IntegerParser()),
     DOUBLE(new DoubleParser()),
-    BLOCK(null),
+    BOOLEAN(new BooleanParser()),
     JAVA_CLASS(new JavaClassParser()),
     LOCATION(new LocationParser()),
     SOUND(new SoundParser()),
-    SPECIFIER((parser1, index, argument) -> argument);
+    STATEMENT(new StatementParser()),
+    STRUCTURE(new StructureParser()),
+    STRING(new StringParser()),
+    SPECIFIER((parser1, index, argument) -> argument),
+    BLOCK(null),
+    DYNAMIC(null);
 
     private final ArgumentParser parser;
 
@@ -27,4 +32,8 @@ public enum Structure {
         this.parser = parser;
     }
 
+    @Override
+    public String toString() {
+        return name();
+    }
 }
