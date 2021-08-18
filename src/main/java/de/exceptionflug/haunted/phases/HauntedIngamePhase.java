@@ -12,6 +12,7 @@ import de.exceptionflug.projectvenom.game.phases.IngamePhase;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -52,6 +53,15 @@ public class HauntedIngamePhase extends IngamePhase {
     public void onStop() {
         super.onStop();
         task.cancel();
+    }
+
+    public HauntedPlayer deadBodyInRange(Location location, double distance) {
+        for (HauntedPlayer player : context().<HauntedPlayer>players()) {
+            if (player.revivable() && player.deathLocation().distance(location) <= distance) {
+                return player;
+            }
+        }
+        return null;
     }
 
     public void initWave(AbstractWave wave) {

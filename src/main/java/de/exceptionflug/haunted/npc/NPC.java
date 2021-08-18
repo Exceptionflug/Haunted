@@ -31,7 +31,8 @@ public class NPC {
 
     public NPC(Location location, GameProfile gameProfile) {
         this.location = location;
-        this.gameProfile = gameProfile;
+        this.gameProfile = new GameProfile(uuid, gameProfile.getName());
+        this.gameProfile.getProperties().putAll(gameProfile.getProperties());
     }
 
     public void spawn() {
@@ -50,9 +51,6 @@ public class NPC {
 
     private void sendPacket(PacketContainer packetContainer) {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            if (gameProfile.getId().equals(player.getUniqueId()) && packetContainer.getType() == PacketType.Play.Server.PLAYER_INFO) {
-                return;
-            }
             try {
                 ProtocolLibrary.getProtocolManager().sendServerPacket(player, packetContainer);
             } catch (Exception exception) {

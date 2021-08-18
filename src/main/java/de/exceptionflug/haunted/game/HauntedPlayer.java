@@ -26,6 +26,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 
@@ -42,6 +43,7 @@ public class HauntedPlayer extends GamePlayer {
     private static final SpigotConfig SCOREBOARD_CONFIG = ConfigFactory.create(new File("plugins/Haunted/scoreboard.yml"), SpigotConfig.class);
     private LocalizedConfigBoard scoreboard;
     private Location deathLocation;
+    private int reviveTicks = 60;
     private int respawnTimer = 30;
     @Setter
     private int gold;
@@ -102,16 +104,48 @@ public class HauntedPlayer extends GamePlayer {
         });
     }
 
-    public void revive() {
+    public void revive(HauntedPlayer player) {
         if (!dead || !revivable) {
             return;
         }
-        dead = false;
-        revivable = false;
-        setAlive(false);
-        teleport(deathLocation);
-        getPlayer().sendTitle(new Title("§aDu wurdest gerettet!", "", 10, 40, 10));
-        removeLayingBody();
+        new BukkitRunnable() {
+
+            private int timer;
+
+            @Override
+            public void run() {
+                timer ++;
+                if (!player.isSneaking()) {
+                    cancel();
+                    return;
+                }
+                player.sendTitle(new Title("§8["+buildProgressbar(40, timer / (float) reviveTicks, "§a")+"§8]", "§7Halte die Taste gedrückt", 0, 6, 0));
+                player.playSound(player.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 1, (timer / (float) (reviveTicks / 1.5)) + 0.5F);
+                if (timer == reviveTicks) {
+                    cancel();
+                    dead = false;
+                    revivable = false;
+                    setAlive(false);
+                    teleport(deathLocation);
+                    getPlayer().sendTitle(new Title("§aDu wurdest gerettet!", "", 10, 40, 10));
+                    removeLayingBody();
+                }
+            }
+
+        }.runTaskTimer(context().plugin(), 1, 1);
+    }
+
+    private String buildProgressbar(int length, float percentage, String color) {
+        var filledChars = (int) (length * percentage);
+        var stringBuilder = new StringBuilder(color);
+        for (int i = 0; i < length; i++) {
+            if (i <= filledChars) {
+                stringBuilder.append("|");
+            } else {
+                stringBuilder.append("§7|");
+            }
+        }
+        return stringBuilder.toString();
     }
 
     private void removeLayingBody() {
