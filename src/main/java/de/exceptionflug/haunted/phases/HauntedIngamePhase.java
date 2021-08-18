@@ -2,7 +2,9 @@ package de.exceptionflug.haunted.phases;
 
 import com.destroystokyo.paper.event.entity.ThrownEggHatchEvent;
 import com.google.inject.Inject;
+import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
+import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.wave.AbstractWave;
 import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
@@ -19,9 +21,6 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Date: 10.08.2021
@@ -43,7 +42,10 @@ public class HauntedIngamePhase extends IngamePhase {
     public void onStart() {
         super.onStart();
         startedSince = System.currentTimeMillis();
-        startScoreboardUpdater();
+        startGameLoop();
+        Bukkit.getScheduler().runTaskAsynchronously(context().plugin(), () -> {
+            context().<HauntedMap>currentMap().sectionGates().forEach(SectionGate::spawnHologram);
+        });
     }
 
     @Override
@@ -61,14 +63,12 @@ public class HauntedIngamePhase extends IngamePhase {
         Message.broadcast(context().players(), context().messageConfiguration(), "Messages.waveBroadcast", "§7Welle §6%wave% §7beginnt!", "%wave%", Integer.toString(wave.wave()));
     }
 
-    private void startScoreboardUpdater() {
+    private void startGameLoop() {
         context().<HauntedPlayer>players().forEach(player -> {
             player.scoreboard().format("%time%", h -> DurationFormatUtils.formatDuration(System.currentTimeMillis() - startedSince, "mm:ss", true));
         });
         task = Bukkit.getScheduler().runTaskTimer(context().plugin(), () -> {
-            context().<HauntedPlayer>players().forEach(player -> {
-                player.scoreboard().update();
-            });
+            context().<HauntedPlayer>players().forEach(HauntedPlayer::update);
         }, 20, 20);
     }
 

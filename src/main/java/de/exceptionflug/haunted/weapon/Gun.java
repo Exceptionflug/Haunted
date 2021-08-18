@@ -64,7 +64,7 @@ public class Gun implements Weapon {
     }
 
     public void shoot(int slot) {
-        if ((System.currentTimeMillis() - lastShot) < gunType.fireDelay()) {
+        if ((System.currentTimeMillis() - lastShot) < gunType.fireDelay() || reloading) {
             return;
         }
         Bukkit.getScheduler().runTaskAsynchronously(gameContext.plugin(), () -> {
@@ -99,10 +99,6 @@ public class Gun implements Weapon {
                 }
             }
         });
-    }
-
-    private void rayTraceTargets() {
-        // TODO
     }
 
     private void launchProjectile() {

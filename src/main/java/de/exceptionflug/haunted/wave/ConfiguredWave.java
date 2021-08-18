@@ -2,11 +2,10 @@ package de.exceptionflug.haunted.wave;
 
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.monster.Monster;
-import de.exceptionflug.haunted.wave.config.Instruction;
+import de.exceptionflug.haunted.wave.config.Statement;
 import de.exceptionflug.haunted.wave.config.InstructionExecutor;
 import de.exceptionflug.haunted.wave.config.ParseException;
 import de.exceptionflug.haunted.wave.config.WaveConfigurationParser;
-import de.exceptionflug.mccommons.config.spigot.SpigotConfig;
 import de.exceptionflug.projectvenom.game.GameContext;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -30,8 +29,9 @@ public class ConfiguredWave extends AbstractWave {
 
     private final File file;
     private final List<Monster> monsters = new ArrayList<>();
-    private final List<Instruction> instructions = new ArrayList<>();
+    private final List<Statement> statements = new ArrayList<>();
     private final ReentrantLock lock = new ReentrantLock();
+    private InstructionExecutor instructionExecutor;
     private boolean done;
 
     public ConfiguredWave(File file, GameContext context) throws IOException, ParseException {
@@ -42,11 +42,11 @@ public class ConfiguredWave extends AbstractWave {
 
     private void parseInstructions() throws IOException, ParseException {
         WaveConfigurationParser parser = new WaveConfigurationParser(context(), file);
-        Instruction instruction;
-        while ((instruction = parser.nextInstruction()) != null) {
-            instructions.add(instruction);
+        Statement statement;
+        while ((statement = parser.nextStatement()) != null) {
+            statements.add(statement);
         }
-        Bukkit.getLogger().info("Parsed "+instructions.size()+" main instructions from "+file.getName());
+        Bukkit.getLogger().info("Parsed "+ statements.size()+" main instructions from "+file.getName());
     }
 
     private static int parseEndReturnWaveNumber(File file, GameContext context) throws IOException, ParseException {
@@ -57,13 +57,16 @@ public class ConfiguredWave extends AbstractWave {
     @Override
     public void enable() {
         Bukkit.getScheduler().runTaskAsynchronously(context().plugin(), () -> {
-            new InstructionExecutor(this).execute(instructions);
+            instructionExecutor = new InstructionExecutor(this);
+            instructionExecutor.addGlobalInt("alivePlayerCount", context().alivePlayers().size());
+            instructionExecutor.execute(statements);
         });
     }
 
     @Override
     public void disable() {
         monsters.forEach(Monster::despawn);
+        instructionExecutor.cancel();
     }
 
     @Override
