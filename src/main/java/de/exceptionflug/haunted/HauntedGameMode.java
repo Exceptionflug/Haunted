@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class HauntedGameMode extends JavaPlugin {
 
-    private GameContext context;
+    private static GameContext context;
 
     @Override
     public void onEnable() {
@@ -31,5 +31,9 @@ public class HauntedGameMode extends JavaPlugin {
     @Override
     public void onDisable() {
         Cutscene.shutdown();
+    }
+
+    public static GameContext getGameContext() {
+        return context;
     }
 }

@@ -49,8 +49,12 @@ public final class MobGate {
         }
     }
 
-    public boolean broken() {
+    public boolean damaged() {
         return gateBlocks.stream().anyMatch(mobGateBlock -> mobGateBlock.broken);
+    }
+
+    public boolean broken() {
+        return gateBlocks.stream().allMatch(mobGateBlock -> mobGateBlock.broken);
     }
 
     public void damageGate(int damage) {

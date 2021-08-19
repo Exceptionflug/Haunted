@@ -1,6 +1,6 @@
 package de.exceptionflug.haunted.monsters;
 
-import de.exceptionflug.haunted.monster.Monster;
+import de.exceptionflug.haunted.monster.GateMonster;
 import org.bukkit.Location;
 import org.bukkit.entity.Zombie;
 
@@ -9,13 +9,16 @@ import org.bukkit.entity.Zombie;
  *
  * @author Exceptionflug
  */
-public class ZombieMonster implements Monster {
+public class ZombieMonster extends GateMonster {
 
     private Zombie zombie;
 
     @Override
     public void spawn(Location location) {
         zombie = location.getWorld().spawn(location, Zombie.class);
+        zombie.setShouldBurnInDay(false);
+        zombie.setCanPickupItems(false);
+        super.spawn(zombie, location);
     }
 
     @Override
