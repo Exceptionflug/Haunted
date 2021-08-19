@@ -114,6 +114,15 @@ public class HauntedMap extends AbstractGameMap {
         return null;
     }
 
+    public MobGate mobGateByGateBlock(Location location) {
+        for (MobGate mobGate : mobGates) {
+            if (mobGate.isGateBlock(location)) {
+                return mobGate;
+            }
+        }
+        return null;
+    }
+
     public MapSection mapSection(Location location) {
         for (MapSection section : sections.values()) {
             if (section.isInside(location)) {
