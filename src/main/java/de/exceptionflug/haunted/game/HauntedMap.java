@@ -151,4 +151,8 @@ public class HauntedMap extends AbstractGameMap {
     public Collection<SectionGate> sectionGates() {
         return sectionGates.values();
     }
+
+    public void reloadWaves() {
+        loadWaves();
+    }
 }

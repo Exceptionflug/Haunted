@@ -85,6 +85,10 @@ public final class MobGate {
         return repairRegion.isInside(location);
     }
 
+    public boolean isGateBlock(Location location) {
+        return gateRegion.isInside(location);
+    }
+
     public Player repairingPlayer() {
         return repairingPlayer;
     }

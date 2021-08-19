@@ -28,6 +28,10 @@ public class WaveCommand extends SpigotCommand {
 
     @Override
     public void onCommand(CommandInput commandInput) {
+        if (commandInput.getString(0).equals("reload")) {
+            context.<HauntedMap>currentMap().reloadWaves();
+            return;
+        }
         int waveNumber = commandInput.findInt(0, "waveCommandUsage", "§bBenutzung: §6/wave <int>");
         AbstractWave wave = context.<HauntedMap>currentMap().wave(waveNumber);
         HauntedIngamePhase phase = context.phase();
