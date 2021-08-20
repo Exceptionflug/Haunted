@@ -2,6 +2,7 @@ package de.exceptionflug.haunted.game;
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.mojang.authlib.GameProfile;
+import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.npc.NPC;
 import de.exceptionflug.haunted.perk.Perk;
 import de.exceptionflug.haunted.section.MapSection;
@@ -187,6 +188,7 @@ public class HauntedPlayer extends GamePlayer {
 
     public void update() {
         scoreboard.update();
+        checkRepairing();
         if (dead && revivable) {
             respawnTimer --;
             setLevel(respawnTimer);
@@ -203,4 +205,34 @@ public class HauntedPlayer extends GamePlayer {
             }
         }
     }
+
+    private void checkRepairing() {
+        HauntedMap hauntedMap = context().currentMap();
+        MobGate mobGate = hauntedMap.mobGateByRepairZone(getLocation());
+        if (mobGate != null && isSneaking()) {
+            if (mobGate.repairingPlayer() != null) {
+                if (!mobGate.repairingPlayer().getUniqueId().equals(getUniqueId())) {
+                    return;
+                } else if (mobGate.repaired()) {
+                    mobGate.repairingPlayer(null);
+                    playSound(getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
+                    return;
+                }
+            }
+            if (mobGate.repaired()) {
+                return;
+            }
+            mobGate.repairingPlayer(getPlayer());
+            mobGate.repairGate(1);
+            playSound(getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1, 1);
+            giveGold(10);
+        } else {
+            hauntedMap.mobGates().forEach(it -> {
+                if (it.repairingPlayer() != null && it.repairingPlayer().getUniqueId().equals(getUniqueId())) {
+                    it.repairingPlayer(null);
+                }
+            });
+        }
+    }
+
 }

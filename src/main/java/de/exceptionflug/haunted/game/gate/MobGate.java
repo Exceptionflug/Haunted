@@ -99,7 +99,7 @@ public final class MobGate {
         }
     }
 
-    private boolean repaired() {
+    public boolean repaired() {
         return gateBlocks.stream().noneMatch(mobGateBlock -> mobGateBlock.broken);
     }
 

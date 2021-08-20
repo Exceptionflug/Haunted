@@ -35,6 +35,9 @@ public final class ToggleSneakListener implements Listener {
 
     private void processLayingBody(PlayerToggleSneakEvent event) {
         if (event.isSneaking()) {
+            if (!game.phase().ingamePhase()) {
+                return;
+            }
             HauntedIngamePhase phase = game.phase();
             HauntedPlayer player = game.player(event.getPlayer());
             if (player.spectator()) {
@@ -52,7 +55,7 @@ public final class ToggleSneakListener implements Listener {
         MobGate mobGate = game.<HauntedMap>currentMap().mobGateByRepairZone(event.getPlayer().getLocation());
         if (mobGate != null) {
             Bukkit.getScheduler().runTaskLater(game.plugin(), () -> {
-                if (event.getPlayer().isSneaking()) {
+                if (event.getPlayer().isSneaking() && !mobGate.repaired()) {
                     if (mobGate.repairingPlayer() != null) {
                         event.getPlayer().sendMessage("§cDieses Tor wird bereits repariert!");
                     } else {
