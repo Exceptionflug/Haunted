@@ -224,7 +224,6 @@ public class HauntedPlayer extends GamePlayer {
             }
             mobGate.repairingPlayer(getPlayer());
             mobGate.repairGate(1);
-            playSound(getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1, 1);
             giveGold(10);
         } else {
             hauntedMap.mobGates().forEach(it -> {

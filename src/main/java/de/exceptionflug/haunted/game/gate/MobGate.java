@@ -101,6 +101,7 @@ public final class MobGate {
             block.setType(gateBlock.material);
             block.setBlockData(gateBlock.blockData, true);
             gateBlock.broken = false;
+            block.getWorld().playSound(block.getLocation(), block.getBlockData().getSoundGroup().getPlaceSound(), 1, 1);
         }
     }
 
