@@ -49,6 +49,15 @@ public final class MobGate {
         }
     }
 
+    private MobGateBlock getGateBlock(Location location) {
+        for (MobGateBlock gateBlock : gateBlocks) {
+            if (gateBlock.location.getBlockX() == location.getBlockX()
+                && gateBlock.location.getBlockY() == location.getBlockY()
+                && gateBlock.location.getBlockZ() == location.getBlockZ()) return gateBlock;
+        }
+        return null;
+    }
+
     public boolean damaged() {
         return gateBlocks.stream().anyMatch(mobGateBlock -> mobGateBlock.broken);
     }
@@ -64,6 +73,15 @@ public final class MobGate {
             }
             List<MobGateBlock> unbrokenBlocks = gateBlocks.stream().filter(mobGateBlock -> !mobGateBlock.broken).collect(Collectors.toList());
             MobGateBlock gateBlock = unbrokenBlocks.get(ThreadLocalRandom.current().nextInt(0, unbrokenBlocks.size()));
+            gateBlock.location.getBlock().breakNaturally(null);
+            gateBlock.broken = true;
+        }
+    }
+
+    public void breakGateBlock(Location location) {
+        if (isGateBlock(location) && !broken()) {
+            MobGateBlock gateBlock = getGateBlock(location);
+            if (gateBlock == null) return;
             gateBlock.location.getBlock().breakNaturally(null);
             gateBlock.broken = true;
         }
@@ -91,6 +109,15 @@ public final class MobGate {
 
     public boolean isGateBlock(Location location) {
         return gateRegion.isInside(location);
+    }
+
+    public boolean isRepairedGateBlock(Location location) {
+        if (gateRegion.isInside(location)) {
+            MobGateBlock gateBlock = getGateBlock(location);
+            if (gateBlock == null) return true;
+            return !gateBlock.broken;
+        }
+        return true;
     }
 
     public Player repairingPlayer() {

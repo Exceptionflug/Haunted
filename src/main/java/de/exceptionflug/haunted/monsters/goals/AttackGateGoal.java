@@ -54,9 +54,16 @@ public class AttackGateGoal extends MoveToBlockGoal {
     public void tick() {
         super.tick();
         if (isReachedTarget() && this.blockPos != null) {
+            if (this.mob.level.getBlockState(blockPos).isAir()) {
+                blockPos = null;
+                super.stop();
+                return;
+            }
+
             if (this.mob.getRandom().nextInt(randomHitInterval) == 0) {
                 // block hit sound (zombie attack wooden door)
-                this.mob.level.levelEvent(1019, this.blockPos, 0);
+                //this.mob.level.levelEvent(1019, this.blockPos, 0);
+                playDestroyProgressSound(this.mob.level, blockPos);
                 if (!this.mob.swinging) {
                     this.mob.getLookControl().setLookAt(this.blockPos.getX(), this.blockPos.getY(), this.blockPos.getZ());
                     this.mob.swing(this.mob.getUsedItemHand());
@@ -71,21 +78,22 @@ public class AttackGateGoal extends MoveToBlockGoal {
             }
 
             if (this.breakTime == this.blockBreakTime) {
-                this.mob.level.removeBlock(this.blockPos, false);
+                GateUtils.breakGateBlock(this.blockPos);
+                //this.mob.level.removeBlock(this.blockPos, false);
                 //this.mob.level.levelEvent(1021, this.blockPos, 0);
                 //block break sound and particle?
-                this.mob.level.levelEvent(2001, this.blockPos, Block.getId(this.mob.level.getBlockState(this.blockPos)));
+                //this.mob.level.levelEvent(2001, this.blockPos, Block.getId(this.mob.level.getBlockState(this.blockPos)));
             }
         }
     }
 
     protected BlockPos getMoveToTarget() {
-        if (GateUtils.isGateBlock(this.blockPos.below())) return this.blockPos.below();
+        if (GateUtils.isGateBlock(this.blockPos.down())) return this.blockPos.down();
         return this.blockPos;
     }
 
     protected boolean isValidTarget(LevelReader iworldreader, BlockPos blockposition) {
-        return GateUtils.isGateBlock(blockposition);
+        return GateUtils.isRepairedGateBlock(blockposition) && !GateUtils.isGateBlockLocked(blockposition);
     }
 
     public double acceptedDistance() {

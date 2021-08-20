@@ -16,7 +16,7 @@ public class ZombieMonster extends GateMonster {
     @Override
     public void spawn(Location location) {
         zombie = location.getWorld().spawn(location, Zombie.class);
-        zombie.setShouldBurnInDay(false);
+        //zombie.setShouldBurnInDay(false);
         zombie.setCanPickupItems(false);
         super.spawn(zombie, location);
     }

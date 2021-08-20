@@ -1,7 +1,6 @@
 package de.exceptionflug.haunted.game;
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.destroystokyo.paper.Title;
 import com.mojang.authlib.GameProfile;
 import de.exceptionflug.haunted.npc.NPC;
 import de.exceptionflug.haunted.perk.Perk;
@@ -84,7 +83,7 @@ public class HauntedPlayer extends GamePlayer {
         setSpectator(false);
         if (revivable) {
             Message.broadcast(context().players(), context().messageConfiguration(), "Messages.playerUnconscious", "§6%player% §7ist außer Gefecht! Du hast 30 Sekunden Zeit ihn oder sie wiederzubeleben.", "%player%", getName());
-            getPlayer().sendTitle(new Title("§7Du bist außer Gefecht!", "§eDu kannst noch wiederbelebt werden", 10, 40, 10));
+            getPlayer().sendTitle("§7Du bist außer Gefecht!", "§eDu kannst noch wiederbelebt werden", 10, 40, 10);
             context().players().forEach(player -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1));
             createLayingBody(deathLocation.clone().add(0, 0.2, 0));
         }
@@ -119,7 +118,7 @@ public class HauntedPlayer extends GamePlayer {
                     cancel();
                     return;
                 }
-                player.sendTitle(new Title("§8["+buildProgressbar(40, timer / (float) reviveTicks, "§a")+"§8]", "§7Halte die Taste gedrückt", 0, 6, 0));
+                player.sendTitle("§8["+buildProgressbar(40, timer / (float) reviveTicks, "§a")+"§8]", "§7Halte die Taste gedrückt", 0, 6, 0);
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 1, (timer / (float) (reviveTicks / 1.5)) + 0.5F);
                 if (timer == reviveTicks) {
                     cancel();
@@ -127,7 +126,7 @@ public class HauntedPlayer extends GamePlayer {
                     revivable = false;
                     setAlive(false);
                     teleport(deathLocation);
-                    getPlayer().sendTitle(new Title("§aDu wurdest gerettet!", "", 10, 40, 10));
+                    getPlayer().sendTitle("§aDu wurdest gerettet!", "", 10, 40, 10);
                     removeLayingBody();
                 }
             }
@@ -198,7 +197,7 @@ public class HauntedPlayer extends GamePlayer {
             } else {
                 revivable = false;
                 sneakHologram.despawn();
-                getPlayer().sendTitle(new Title("§cDu bist gestorben!", "§7Du wirst am Anfang der nächsten Welle wiederbelebt", 10, 40, 10));
+                getPlayer().sendTitle("§cDu bist gestorben!", "§7Du wirst am Anfang der nächsten Welle wiederbelebt", 10, 40, 10);
                 Message.broadcast(context().players(), context().messageConfiguration(), "Messages.playerDied", "§6%player% §7ist gestorben! Er oder sie wird am Anfang der nächsten Welle wiederbelebt.", "%player%", getName());
                 context().players().forEach(player -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 0));
             }
