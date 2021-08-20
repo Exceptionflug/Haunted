@@ -3,6 +3,8 @@ package de.exceptionflug.haunted.game.gate;
 import de.exceptionflug.haunted.util.CuboidRegion;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -43,7 +45,8 @@ public final class MobGate {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     Location location = new Location(gateRegion.pos1().getWorld(), x, y, z);
-                    gateBlocks.add(new MobGateBlock(location, location.getBlock().getType()));
+                    Block block = location.getBlock();
+                    gateBlocks.add(new MobGateBlock(location, block.getType(), block.getBlockData().clone()));
                 }
             }
         }
@@ -94,7 +97,9 @@ public final class MobGate {
             }
             List<MobGateBlock> brokenBlocks = gateBlocks.stream().filter(mobGateBlock -> mobGateBlock.broken).collect(Collectors.toList());
             MobGateBlock gateBlock = brokenBlocks.get(ThreadLocalRandom.current().nextInt(0, brokenBlocks.size()));
-            gateBlock.location.getBlock().setType(gateBlock.material);
+            Block block = gateBlock.location.getBlock();
+            block.setType(gateBlock.material);
+            block.setBlockData(gateBlock.blockData, true);
             gateBlock.broken = false;
         }
     }
@@ -140,11 +145,13 @@ public final class MobGate {
 
         private final Location location;
         private final Material material;
+        private final BlockData blockData;
         private boolean broken;
 
-        private MobGateBlock(Location location, Material material) {
+        private MobGateBlock(Location location, Material material, BlockData blockData) {
             this.location = location;
             this.material = material;
+            this.blockData = blockData;
         }
 
     }
