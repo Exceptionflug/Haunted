@@ -153,22 +153,26 @@ public class Gun implements Weapon {
             player.getInventory().setItem(slot, updateItem());
             player.getWorld().playSound(player.getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         }, gunType().reloadDelay());
-        for (int i = 0; i < gunType.reloadDelay(); i++) {
-            int finalI = i;
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    double progress = (double)finalI / (double)gunType.reloadDelay();
-                    ItemStack itemStack = updateItem();
-                    ItemMeta meta = itemStack.getItemMeta();
-                    if (meta instanceof Damageable damage) {
-                        damage.setDamage((itemStack.getType().getMaxDurability()-1) - (int) (itemStack.getType().getMaxDurability() * progress));
-                    }
-                    itemStack.setItemMeta(meta);
-                    player.getInventory().setItem(slot, itemStack);
+
+        new BukkitRunnable() {
+
+            private int count = 0;
+
+            @Override
+            public void run() {
+                if (count >= gunType.reloadDelay())
+                    cancel();
+                double progress = (double)count / (double)gunType.reloadDelay();
+                ItemStack itemStack = updateItem();
+                ItemMeta meta = itemStack.getItemMeta();
+                if (meta instanceof Damageable damage) {
+                    damage.setDamage((itemStack.getType().getMaxDurability()-1) - (int) (itemStack.getType().getMaxDurability() * progress));
                 }
-            }.runTaskLater(gameContext().plugin(),i);
-        }
+                itemStack.setItemMeta(meta);
+                player.getInventory().setItem(slot, itemStack);
+                count++;
+            }
+        }.runTaskTimer(gameContext().plugin(),0,1);
     }
 
     private ItemStack updateItem() {
