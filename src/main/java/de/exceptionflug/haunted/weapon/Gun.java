@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -154,16 +155,19 @@ public class Gun implements Weapon {
         }, gunType().reloadDelay());
         for (int i = 0; i < gunType.reloadDelay(); i++) {
             int finalI = i;
-            Bukkit.getScheduler().runTaskLater(gameContext.plugin(), () -> {
-                double progress = (double)finalI / (double)gunType.reloadDelay();
-                ItemStack itemStack = updateItem();
-                ItemMeta meta = itemStack.getItemMeta();
-                if (meta instanceof Damageable damage) {
-                    damage.setDamage((itemStack.getType().getMaxDurability()-1) - (int) (itemStack.getType().getMaxDurability() * progress));
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    double progress = (double)finalI / (double)gunType.reloadDelay();
+                    ItemStack itemStack = updateItem();
+                    ItemMeta meta = itemStack.getItemMeta();
+                    if (meta instanceof Damageable damage) {
+                        damage.setDamage((itemStack.getType().getMaxDurability()-1) - (int) (itemStack.getType().getMaxDurability() * progress));
+                    }
+                    itemStack.setItemMeta(meta);
+                    player.getInventory().setItem(slot, itemStack);
                 }
-                itemStack.setItemMeta(meta);
-                player.getInventory().setItem(slot, itemStack);
-                }, i);
+            }.runTaskLater(gameContext().plugin(),i);
         }
     }
 
