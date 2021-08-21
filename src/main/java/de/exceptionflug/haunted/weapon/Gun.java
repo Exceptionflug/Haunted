@@ -11,11 +11,13 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -151,6 +153,26 @@ public class Gun implements Weapon {
             player.getInventory().setItem(slot, updateItem());
             player.getWorld().playSound(player.getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         }, gunType().reloadDelay());
+
+        new BukkitRunnable() {
+
+            private int count = 0;
+
+            @Override
+            public void run() {
+                if (count >= gunType.reloadDelay())
+                    cancel();
+                double progress = (double)count / (double)gunType.reloadDelay();
+                ItemStack itemStack = updateItem();
+                ItemMeta meta = itemStack.getItemMeta();
+                if (meta instanceof Damageable damage) {
+                    damage.setDamage((itemStack.getType().getMaxDurability()-1) - (int) (itemStack.getType().getMaxDurability() * progress));
+                }
+                itemStack.setItemMeta(meta);
+                player.getInventory().setItem(slot, itemStack);
+                count++;
+            }
+        }.runTaskTimer(gameContext().plugin(),0,1);
     }
 
     private ItemStack updateItem() {
