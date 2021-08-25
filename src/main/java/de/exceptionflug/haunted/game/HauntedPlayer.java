@@ -51,6 +51,7 @@ public class HauntedPlayer extends GamePlayer {
     private int kills;
     private boolean dead;
     private boolean revivable;
+    private boolean beeingRevived;
     private Weapon primaryWeapon;
     private Weapon secondaryWeapon;
     private Perk primaryPerk;
@@ -108,6 +109,10 @@ public class HauntedPlayer extends GamePlayer {
         if (!dead || !revivable) {
             return;
         }
+        if (beeingRevived) {
+            return;
+        }
+        beeingRevived = true;
         new BukkitRunnable() {
 
             private int timer;
@@ -116,12 +121,14 @@ public class HauntedPlayer extends GamePlayer {
             public void run() {
                 timer ++;
                 if (!player.isSneaking()) {
+                    beeingRevived = false;
                     cancel();
                     return;
                 }
                 player.sendTitle("§8["+buildProgressbar(40, timer / (float) reviveTicks, "§a")+"§8]", "§7Halte die Taste gedrückt", 0, 6, 0);
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 1, (timer / (float) (reviveTicks / 1.5)) + 0.5F);
                 if (timer == reviveTicks) {
+                    beeingRevived = false;
                     cancel();
                     dead = false;
                     revivable = false;
