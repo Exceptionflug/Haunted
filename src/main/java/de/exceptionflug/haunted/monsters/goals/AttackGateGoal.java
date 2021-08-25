@@ -9,7 +9,6 @@ import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
 
 public class AttackGateGoal extends MoveToBlockGoal {
 
@@ -27,7 +26,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
             --this.nextStartTick;
             return false;
         } else if (this.tryFindBlock()) {
-            this.nextStartTick = 5;
+            this.nextStartTick = 20;
             return true;
         } else {
             this.nextStartTick = this.nextStartTick(this.mob);
@@ -36,7 +35,20 @@ public class AttackGateGoal extends MoveToBlockGoal {
     }
 
     private boolean tryFindBlock() {
-        return this.blockPos != null && this.isValidTarget(this.mob.level, this.blockPos) || this.findNearestBlock();
+        if (this.blockPos != null && this.isValidTarget(this.mob.level, this.blockPos)) {
+            return true;
+        } else if (this.findNearestBlock()) {
+            //System.out.println("findNearestBlock " + mob.getId());
+            this.blockPos = GateUtils.getDamageableGateBlock(this.blockPos);
+            //System.out.println("getDamageableGateBlock " + mob.getId() + " " + this.blockPos);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean findNearestBlock() {
+        if (GateUtils.isGateBlockLockedBy(blockPos, mob.getId())) GateUtils.unlockGateBlock(blockPos);
+        return super.findNearestBlock();
     }
 
     protected int breakTime;
@@ -48,21 +60,14 @@ public class AttackGateGoal extends MoveToBlockGoal {
     public void start() {
         super.start();
         this.breakTime = 0;
+        System.out.println(mob.getId() + " start");
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (isReachedTarget() && this.blockPos != null) {
-            if (this.mob.level.getBlockState(blockPos).isAir()) {
-                blockPos = null;
-                super.stop();
-                return;
-            }
-
-            if (this.mob.getRandom().nextInt(randomHitInterval) == 0) {
-                // block hit sound (zombie attack wooden door)
-                //this.mob.level.levelEvent(1019, this.blockPos, 0);
+        if ((isReachedTarget() || breakTime > 0) && this.blockPos != null) {
+            if (breakTime % randomHitInterval == 0) {
                 playDestroyProgressSound(this.mob.level, blockPos);
                 if (!this.mob.swinging) {
                     this.mob.getLookControl().setLookAt(this.blockPos.getX(), this.blockPos.getY(), this.blockPos.getZ());
@@ -70,7 +75,15 @@ public class AttackGateGoal extends MoveToBlockGoal {
                 }
             }
 
+            if (breakTime == 0 && !GateUtils.isGateBlockLocked(blockPos)) {
+                GateUtils.lockGateBlock(blockPos, mob.getId());
+                nextStartTick = 200;
+            }
+
+
             ++this.breakTime;
+            //mob.setCustomName(new TextComponent("§a" + mob.getId() + blockPos + this.breakTime + "/" + this.blockBreakTime));
+
             int i = (int)((float)this.breakTime / (float)blockBreakTime * 10.0F);
             if (i != this.lastBreakProgress) {
                 this.mob.level.destroyBlockProgress(this.mob.getId(), this.blockPos, i);
@@ -79,10 +92,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
 
             if (this.breakTime == this.blockBreakTime) {
                 GateUtils.breakGateBlock(this.blockPos);
-                //this.mob.level.removeBlock(this.blockPos, false);
-                //this.mob.level.levelEvent(1021, this.blockPos, 0);
-                //block break sound and particle?
-                //this.mob.level.levelEvent(2001, this.blockPos, Block.getId(this.mob.level.getBlockState(this.blockPos)));
+                GateUtils.unlockGateBlock(blockPos);
             }
         }
     }
@@ -93,10 +103,11 @@ public class AttackGateGoal extends MoveToBlockGoal {
     }
 
     protected boolean isValidTarget(LevelReader iworldreader, BlockPos blockposition) {
-        return GateUtils.isRepairedGateBlock(blockposition) && !GateUtils.isGateBlockLocked(blockposition);
+        if (blockposition == null) return false;
+        return GateUtils.isRepairedGateBlock(blockposition) && !GateUtils.isGateBlockLockedBy(blockposition, mob.getId());
     }
 
     public double acceptedDistance() {
-        return 3D;
+        return 2.5D;
     }
 }

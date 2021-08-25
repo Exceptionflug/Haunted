@@ -25,7 +25,7 @@ import java.util.Objects;
  *
  * @author Exceptionflug
  */
-public class TestMagicBoss implements BossMonster {
+public class TestMagicBoss extends BossMonster {
 
     private final GameContext context;
     private final BossBar bossBar = Bukkit.createBossBar("TestMagicBoss", BarColor.PINK, BarStyle.SOLID, BarFlag.DARKEN_SKY);

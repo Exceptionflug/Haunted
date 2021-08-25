@@ -5,6 +5,7 @@ import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.projectvenom.game.GameContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.block.Block;
 import org.bukkit.Location;
 
 import java.util.HashMap;
@@ -35,22 +36,33 @@ public class GateUtils {
         return isGateBlock(new Location(null, x, y, z));
     }
 
-    private static final Map<Location, Boolean> locks = new HashMap<>();
+    private static final Map<Location, Integer> locks = new HashMap<>();
 
     public static boolean isGateBlockLocked(int x, int y, int z) {
         return locks.containsKey(new Location(null, x, y, z));
     }
 
-    public static void lockGateBlock(int x, int y, int z) {
-        locks.put(new Location(null, x, y, z), true);
-    }
-
-    public static void unlockGateBlock(int x, int y, int z) {
-        locks.remove(new Location(null, x, y, z));
-    }
-
     public static boolean isGateBlockLocked(BlockPos blockPos) {
-        return isGateBlockLocked(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        return locks.containsKey(blockPosToLocation(blockPos));
+    }
+
+    public static boolean isGateBlockLockedBy(Location location, int entityId) {
+        if (!locks.containsKey(location)) return false;
+        return locks.get(location) == entityId;
+    }
+
+    public static void lockGateBlock(BlockPos blockPos, int entityId) {
+        System.out.println("lockGateBlock " + blockPos);
+        locks.put(blockPosToLocation(blockPos), entityId);
+    }
+
+    public static void unlockGateBlock(BlockPos blockPos) {
+        System.out.println("unlockGateBlock " + blockPos);
+        locks.remove(blockPosToLocation(blockPos));
+    }
+
+    public static boolean isGateBlockLockedBy(BlockPos blockPos, int entityId) {
+        return isGateBlockLockedBy(blockPosToLocation(blockPos), entityId);
     }
 
     public static boolean isRepairedGateBlock(Location location) {
@@ -65,5 +77,10 @@ public class GateUtils {
     public static void breakGateBlock(BlockPos blockPos) {
         Location location = blockPosToLocation(blockPos);
         getMobGate(location).breakGateBlock(location);
+    }
+
+    public static BlockPos getDamageableGateBlock(BlockPos blockPos) {
+        Location location = getMobGate(blockPosToLocation(blockPos)).getDamageableGateBlock();
+        return new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 }

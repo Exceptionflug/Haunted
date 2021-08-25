@@ -9,8 +9,8 @@ import java.util.List;
  *
  * @author Exceptionflug
  */
-public interface BossMonster extends Monster {
+public abstract class BossMonster extends Monster {
 
-    List<Entity> allies();
+    public abstract List<Entity> allies();
 
 }

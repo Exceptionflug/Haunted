@@ -74,11 +74,15 @@ public final class MobGate {
             if (broken()) {
                 return;
             }
-            List<MobGateBlock> unbrokenBlocks = gateBlocks.stream().filter(mobGateBlock -> !mobGateBlock.broken).collect(Collectors.toList());
-            MobGateBlock gateBlock = unbrokenBlocks.get(ThreadLocalRandom.current().nextInt(0, unbrokenBlocks.size()));
-            gateBlock.location.getBlock().breakNaturally(null);
-            gateBlock.broken = true;
+            //MobGateBlock gateBlock = getDamageableGateBlock();
+            //gateBlock.location.getBlock().breakNaturally(null);
+            //gateBlock.broken = true;
         }
+    }
+
+    public Location getDamageableGateBlock() {
+        List<MobGateBlock> unbrokenBlocks = gateBlocks.stream().filter(mobGateBlock -> !mobGateBlock.broken).collect(Collectors.toList());
+        return unbrokenBlocks.get(ThreadLocalRandom.current().nextInt(0, unbrokenBlocks.size())).location;
     }
 
     public void breakGateBlock(Location location) {
