@@ -27,7 +27,7 @@ public abstract class GateMonster extends Monster {
             mob.goalSelector.addGoal(6, new LookAtPlayerGoal(mob, Player.class, 8.0F));
             mob.goalSelector.addGoal(6, new RandomLookAroundGoal(mob));
             mob.targetSelector.removeAllGoals();
-            mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal(mob, net.minecraft.world.entity.player.Player.class, true));
+            mob.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(mob, net.minecraft.world.entity.player.Player.class, false));
         }
     }
 

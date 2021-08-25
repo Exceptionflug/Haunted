@@ -23,8 +23,7 @@ public class ZombieMonster extends GateMonster {
     @Override
     public void spawn(Location location) {
         zombie = location.getWorld().spawn(location, Zombie.class);
-        //zombie.setShouldBurnInDay(false);
-        this.shouldAddMeleeAttackGoal = !shouldAddZombieAttackGoal;
+        if (shouldAddZombieAttackGoal) this.shouldAddMeleeAttackGoal = false;
         super.spawn(zombie, location);
         if (shouldAddZombieAttackGoal && getNmsEntity() instanceof PathfinderMob mob) {
             zombieAttackGoal = new ZombieAttackGoal((net.minecraft.world.entity.monster.Zombie) mob, 1.0D, true);

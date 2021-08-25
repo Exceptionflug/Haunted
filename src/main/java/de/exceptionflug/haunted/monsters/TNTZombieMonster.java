@@ -11,6 +11,7 @@ public class TNTZombieMonster extends ZombieMonster {
     @Override
     public void spawn(Location location) {
         shouldAddZombieAttackGoal = false;
+        shouldAddMeleeAttackGoal = false;
         super.spawn(location);
         if (getNmsEntity() instanceof PathfinderMob mob) {
             mob.goalSelector.addGoal(2, new SelfExplodeGoal(this, 30));

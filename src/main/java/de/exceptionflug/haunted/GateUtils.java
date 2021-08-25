@@ -52,12 +52,10 @@ public class GateUtils {
     }
 
     public static void lockGateBlock(BlockPos blockPos, int entityId) {
-        System.out.println("lockGateBlock " + blockPos);
         locks.put(blockPosToLocation(blockPos), entityId);
     }
 
     public static void unlockGateBlock(BlockPos blockPos) {
-        System.out.println("unlockGateBlock " + blockPos);
         locks.remove(blockPosToLocation(blockPos));
     }
 
