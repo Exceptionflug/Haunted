@@ -2,6 +2,7 @@ package de.exceptionflug.haunted.monsters.goals;
 
 import de.exceptionflug.haunted.GateUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.PathfinderMob;
@@ -38,9 +39,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
         if (this.blockPos != null && this.isValidTarget(this.mob.level, this.blockPos)) {
             return true;
         } else if (this.findNearestBlock()) {
-            //System.out.println("findNearestBlock " + mob.getId());
             this.blockPos = GateUtils.getDamageableGateBlock(this.blockPos);
-            //System.out.println("getDamageableGateBlock " + mob.getId() + " " + this.blockPos);
             return true;
         }
         return false;
@@ -60,7 +59,6 @@ public class AttackGateGoal extends MoveToBlockGoal {
     public void start() {
         super.start();
         this.breakTime = 0;
-        System.out.println(mob.getId() + " start");
     }
 
     @Override
@@ -77,13 +75,11 @@ public class AttackGateGoal extends MoveToBlockGoal {
 
             if (breakTime == 0 && !GateUtils.isGateBlockLocked(blockPos)) {
                 GateUtils.lockGateBlock(blockPos, mob.getId());
-                nextStartTick = 200;
+                nextStartTick = blockBreakTime + 20;
             }
 
 
             ++this.breakTime;
-            //mob.setCustomName(new TextComponent("§a" + mob.getId() + blockPos + this.breakTime + "/" + this.blockBreakTime));
-
             int i = (int)((float)this.breakTime / (float)blockBreakTime * 10.0F);
             if (i != this.lastBreakProgress) {
                 this.mob.level.destroyBlockProgress(this.mob.getId(), this.blockPos, i);
@@ -104,7 +100,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
 
     protected boolean isValidTarget(LevelReader iworldreader, BlockPos blockposition) {
         if (blockposition == null) return false;
-        return GateUtils.isRepairedGateBlock(blockposition) && !GateUtils.isGateBlockLockedBy(blockposition, mob.getId());
+        return GateUtils.isRepairedGateBlock(blockposition) && (!GateUtils.isGateBlockLocked(blockposition) || GateUtils.isGateBlockLockedBy(blockposition, mob.getId()));
     }
 
     public double acceptedDistance() {
