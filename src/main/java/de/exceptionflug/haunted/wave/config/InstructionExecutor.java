@@ -260,7 +260,7 @@ public class InstructionExecutor {
                 }
             }
             Bukkit.getScheduler().runTask(wave.context().plugin(), () -> {
-                cutscene.startTravelling((int) statement.arguments()[0], 5);
+                cutscene.startTravelling((int) statement.arguments()[0], wave.context().currentMap().spectatorSpawn().getWorld());
             });
         }
         return null;
