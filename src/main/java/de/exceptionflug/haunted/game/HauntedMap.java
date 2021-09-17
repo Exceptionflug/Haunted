@@ -1,13 +1,15 @@
 package de.exceptionflug.haunted.game;
 
-import de.exceptionflug.haunted.DebugUtil;
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.section.MapSection;
+import de.exceptionflug.haunted.shop.Shop;
 import de.exceptionflug.haunted.util.CuboidRegion;
 import de.exceptionflug.haunted.wave.AbstractWave;
 import de.exceptionflug.haunted.wave.ConfiguredWave;
 import de.exceptionflug.haunted.wave.config.ParseException;
+import de.exceptionflug.haunted.weapon.GunShop;
+import de.exceptionflug.haunted.weapon.GunType;
 import de.exceptionflug.mccommons.config.spigot.SpigotConfig;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.map.AbstractGameMap;
@@ -29,6 +31,7 @@ import java.util.logging.Level;
  */
 public class HauntedMap extends AbstractGameMap {
 
+    private final Map<Integer, Shop> shopMap = new ConcurrentHashMap<>();
     private final Map<Integer, AbstractWave> waveMap = new ConcurrentHashMap<>();
     private final List<MobGate> mobGates = new ArrayList<>();
     private final Map<String, SectionGate> sectionGates = new ConcurrentHashMap<>();
@@ -46,7 +49,28 @@ public class HauntedMap extends AbstractGameMap {
         loadMapSections();
         loadMobGates();
         loadSectionGates();
+        loadShops();
         loadWaves();
+    }
+
+    private void loadShops() {
+        int id = 0;
+        for (String key : config().getKeys("shops")) {
+            id ++;
+            Location location = config().getLocation("shops." + key + ".location");
+            String type = config().getOrSetDefault("shops." + key + ".type", "GUN");
+            int price = config().getOrSetDefault("shops." + key + ".price", 100);
+            Shop shop;
+            if (type.equals("GUN")) {
+                shop = new GunShop(id, GunType.valueOf(config().getOrSetDefault("shops." + key + ".gunType", "P90")),
+                        price, price, location);
+            } else {
+                Bukkit.getLogger().warning("Unable to load shop of type " + type);
+                continue;
+            }
+            shopMap.put(id, shop);
+            shop.spawn();
+        }
     }
 
     private void loadSectionGates() {
