@@ -1,5 +1,6 @@
 package de.exceptionflug.haunted.weapon;
 
+import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.feature.hotbar.HotbarItemComponent;
@@ -8,6 +9,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.ItemStack;
@@ -175,7 +177,7 @@ public class Gun implements Weapon {
         }.runTaskTimer(gameContext().plugin(),0,1);
     }
 
-    private ItemStack updateItem() {
+    public ItemStack updateItem() {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§6" + gunType.displayName() + " (" + rounds + "/" + ammunition + ") " + (reloading ? "§cя" : ""));
         item.setItemMeta(meta);
@@ -189,6 +191,13 @@ public class Gun implements Weapon {
                 return;
             }
             if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                Block clickedBlock = event.getClickedBlock();
+                if (clickedBlock != null && (Tag.BUTTONS.isTagged(clickedBlock.getType()) || clickedBlock.getType() == Material.LEVER)) {
+                    return; // Don't shoot at controls
+                }
+                if (clickedBlock != null && gameContext().<HauntedMap>currentMap().sectionGate(clickedBlock.getLocation()) != null) {
+                    return; // Don't shoot at gates
+                }
                 shoot(slot);
             } else if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 reload();

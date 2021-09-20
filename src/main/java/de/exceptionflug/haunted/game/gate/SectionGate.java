@@ -42,7 +42,7 @@ public final class SectionGate {
         hologram.appendLine(displayName);
         if (price != -1) {
             hologram.appendLine("Preis: §b"+price+" Gold");
-            hologram.appendLine("§7(Rechtsklick)");
+            hologram.appendLine("§7(Rechtsklick auf Wand)");
         }
         hologram.spawn();
     }

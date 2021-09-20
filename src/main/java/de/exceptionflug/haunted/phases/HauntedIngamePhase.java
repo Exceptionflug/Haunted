@@ -21,6 +21,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
@@ -76,6 +78,8 @@ public class HauntedIngamePhase extends IngamePhase {
     private void startGameLoop() {
         context().<HauntedPlayer>players().forEach(player -> {
             player.scoreboard().format("%time%", h -> DurationFormatUtils.formatDuration(System.currentTimeMillis() - startedSince, "mm:ss", true));
+            player.getInventory().setHeldItemSlot(0);
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 155, false, false));
         });
         task = Bukkit.getScheduler().runTaskTimer(context().plugin(), () -> {
             context().<HauntedPlayer>players().forEach(HauntedPlayer::update);

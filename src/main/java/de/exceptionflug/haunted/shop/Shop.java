@@ -1,6 +1,7 @@
 package de.exceptionflug.haunted.shop;
 
 import de.exceptionflug.haunted.game.HauntedPlayer;
+import org.bukkit.Location;
 
 /**
  * Date: 17.09.2021
@@ -11,6 +12,8 @@ public interface Shop {
 
     void spawn();
 
-    void interact(HauntedPlayer player);
+    Location triggerLocation();
+
+    boolean interact(HauntedPlayer player);
 
 }

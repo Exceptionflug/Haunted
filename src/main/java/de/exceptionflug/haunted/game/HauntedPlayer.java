@@ -15,6 +15,7 @@ import de.exceptionflug.mccommons.config.spigot.SpigotConfig;
 import de.exceptionflug.mccommons.holograms.Hologram;
 import de.exceptionflug.mccommons.holograms.Holograms;
 import de.exceptionflug.mccommons.holograms.line.TextHologramLine;
+import de.exceptionflug.mccommons.inventories.spigot.item.ItemBuilder;
 import de.exceptionflug.mccommons.scoreboards.Scoreboards;
 import de.exceptionflug.mccommons.scoreboards.localized.LocalizedConfigBoard;
 import de.exceptionflug.projectvenom.game.GameContext;
@@ -24,8 +25,10 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
@@ -40,6 +43,8 @@ import java.io.File;
 @Accessors(fluent = true)
 public class HauntedPlayer extends GamePlayer {
 
+    private static final ItemStack PLACEHOLDER = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setTitle("§8").build();
+    private static final ItemStack FORBIDDEN = new ItemBuilder(Material.BARRIER).setTitle("§cNicht freigeschaltet").build();
     private static final SpigotConfig SCOREBOARD_CONFIG = ConfigFactory.create(new File("plugins/Haunted/scoreboard.yml"), SpigotConfig.class);
     private LocalizedConfigBoard scoreboard;
     private Location deathLocation;
@@ -49,13 +54,19 @@ public class HauntedPlayer extends GamePlayer {
     private int gold;
     @Setter
     private int kills;
+    @Setter
+    private int weaponSlots = 2;
+    @Setter
+    private int perkSlots = 2;
     private boolean dead;
     private boolean revivable;
     private boolean beeingRevived;
     private Weapon primaryWeapon;
     private Weapon secondaryWeapon;
+    private Weapon thirdWeapon;
     private Perk primaryPerk;
     private Perk secondaryPerk;
+    private Perk thirdPerk;
     private Hologram sneakHologram;
     private TextHologramLine secondsLine;
     private NPC body;
@@ -172,6 +183,25 @@ public class HauntedPlayer extends GamePlayer {
         if (secondaryWeapon != null) {
             secondaryWeapon.give(this, 1);
         }
+        if (thirdWeapon != null && weaponSlots == 3) {
+            thirdWeapon.give(this, 2);
+        } else if (weaponSlots < 3) {
+            getInventory().setItem(2, FORBIDDEN);
+        }
+        getInventory().setItem(3, PLACEHOLDER);
+        getInventory().setItem(4, PLACEHOLDER);
+        getInventory().setItem(5, PLACEHOLDER);
+        if (primaryPerk() != null) {
+            primaryPerk.give(this, 8);
+        }
+        if (secondaryPerk() != null) {
+            secondaryPerk.give(this, 7);
+        }
+        if (thirdPerk() != null && perkSlots == 3) {
+            thirdPerk.give(this, 6);
+        } else if (perkSlots < 3) {
+            getInventory().setItem(6, FORBIDDEN);
+        }
     }
 
     @Override
@@ -189,6 +219,34 @@ public class HauntedPlayer extends GamePlayer {
     public void secondaryWeapon(Weapon gun) {
         if (!spectator()) {
             secondaryWeapon = gun;
+        }
+        giveIngameItems();
+    }
+
+    public void thirdWeapon(Weapon gun) {
+        if (!spectator()) {
+            thirdWeapon = gun;
+        }
+        giveIngameItems();
+    }
+
+    public void primaryPerk(Perk perk) {
+        if (!spectator()) {
+            primaryPerk = perk;
+        }
+        giveIngameItems();
+    }
+
+    public void secondaryPerk(Perk perk) {
+        if (!spectator()) {
+            secondaryPerk = perk;
+        }
+        giveIngameItems();
+    }
+
+    public void thirdPerk(Perk perk) {
+        if (!spectator()) {
+            thirdPerk = perk;
         }
         giveIngameItems();
     }
@@ -239,6 +297,11 @@ public class HauntedPlayer extends GamePlayer {
                 }
             });
         }
+    }
+
+    @Override
+    public GameContext context() {
+        return super.context();
     }
 
 }

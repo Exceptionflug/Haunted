@@ -8,6 +8,10 @@ import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.GameContextBuilder;
 import de.exceptionflug.projectvenom.game.behaviours.RoundBasedGameBehaviour;
 import de.exceptionflug.regisseur.Cutscene;
+import net.minecraft.advancements.AdvancementList;
+import net.minecraft.server.dedicated.DedicatedServer;
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -26,6 +30,8 @@ public class HauntedGameMode extends JavaPlugin {
                 .gamePlayerFactory(HauntedPlayer::new)
                 .gameMapFactory(HauntedMap::new)
                 .createGameContext();
+        DedicatedServer minecraftServer = ((CraftServer) Bukkit.getServer()).getServer();
+        minecraftServer.getAdvancements().advancements = new AdvancementList();
     }
 
     @Override
