@@ -2,10 +2,12 @@ package de.exceptionflug.haunted.wave;
 
 import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.gate.MobGate;
+import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.section.MapSection;
 import de.exceptionflug.projectvenom.game.GameContext;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ public abstract class AbstractWave {
 
     public abstract int remainingMonsters();
     public abstract boolean done();
+
+    public abstract List<Monster> entities();
 
     protected List<MobGate> optimalSpawnGates() {
         List<MobGate> out = new ArrayList<>();

@@ -43,6 +43,11 @@ public class StaticWave extends AbstractWave {
     }
 
     @Override
+    public List<Monster> entities() {
+        return List.copyOf(monsters);
+    }
+
+    @Override
     public boolean done() {
         return remainingMonsters() == 0;
     }

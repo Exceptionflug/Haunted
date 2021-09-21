@@ -10,10 +10,12 @@ import de.exceptionflug.projectvenom.game.GameContext;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantLock;
@@ -82,6 +84,16 @@ public class ConfiguredWave extends AbstractWave {
     @Override
     public boolean done() {
         return done;
+    }
+
+    @Override
+    public List<Monster> entities() {
+        lock.lock();
+        try {
+            return List.copyOf(monsters);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void done(boolean done) {
