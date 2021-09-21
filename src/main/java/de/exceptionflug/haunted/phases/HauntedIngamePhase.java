@@ -2,17 +2,20 @@ package de.exceptionflug.haunted.phases;
 
 import com.destroystokyo.paper.event.entity.ThrownEggHatchEvent;
 import com.google.inject.Inject;
+import de.exceptionflug.haunted.HauntedOptions;
 import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.wave.AbstractWave;
 import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
+import de.exceptionflug.projectvenom.game.option.OptionComponent;
 import de.exceptionflug.projectvenom.game.phases.IngamePhase;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -35,6 +38,7 @@ public class HauntedIngamePhase extends IngamePhase {
     private long startedSince;
     private BukkitTask task;
     private AbstractWave wave;
+    private int currentWave = 1;
 
     @Inject
     public HauntedIngamePhase(GameContext context) {
@@ -79,11 +83,29 @@ public class HauntedIngamePhase extends IngamePhase {
         context().<HauntedPlayer>players().forEach(player -> {
             player.scoreboard().format("%time%", h -> DurationFormatUtils.formatDuration(System.currentTimeMillis() - startedSince, "mm:ss", true));
             player.getInventory().setHeldItemSlot(0);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 155, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 155, false, false));
         });
         task = Bukkit.getScheduler().runTaskTimer(context().plugin(), () -> {
             context().<HauntedPlayer>players().forEach(HauntedPlayer::update);
+            if (wave.done()) {
+                currentWave ++;
+                AbstractWave wave = context().<HauntedMap>currentMap().wave(currentWave);
+                if (wave == null) {
+                    endGame(context().players());
+                } else {
+                    initWave(wave);
+                }
+            }
         }, 20, 20);
+        if (!OptionComponent.value(HauntedOptions.DEBUG_MODE)) {
+            HauntedMap map = context().currentMap();
+            AbstractWave wave = map.wave(1);
+            if (wave == null) {
+                Bukkit.getLogger().warning("Unable to begin with wave 1: No such wave");
+                return;
+            }
+            initWave(wave);
+        }
     }
 
     @EventHandler

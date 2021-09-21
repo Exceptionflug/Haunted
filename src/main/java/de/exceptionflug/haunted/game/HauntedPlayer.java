@@ -86,6 +86,7 @@ public class HauntedPlayer extends GamePlayer {
         });
         primaryWeapon = new Gun(GunType.PISTOL, this, context);
         secondaryWeapon = new Gun(GunType.POSEIDONS_REVENGE, this, context);
+        colorPrefix("§7");
     }
 
     public void playerDied() {
@@ -173,6 +174,7 @@ public class HauntedPlayer extends GamePlayer {
 
     public void giveGold(int gold) {
         this.gold += gold;
+        sendMessage("§6+ " + gold + " Gold");
     }
 
     @Override
@@ -278,10 +280,6 @@ public class HauntedPlayer extends GamePlayer {
             if (mobGate.repairingPlayer() != null) {
                 if (!mobGate.repairingPlayer().getUniqueId().equals(getUniqueId())) {
                     return;
-                } else if (mobGate.repaired()) {
-                    mobGate.repairingPlayer(null);
-                    playSound(getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
-                    return;
                 }
             }
             if (mobGate.repaired()) {
@@ -290,6 +288,10 @@ public class HauntedPlayer extends GamePlayer {
             mobGate.repairingPlayer(getPlayer());
             mobGate.repairGate(1);
             giveGold(10);
+            if (mobGate.repaired()) {
+                mobGate.repairingPlayer(null);
+                playSound(getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
+            }
         } else {
             hauntedMap.mobGates().forEach(it -> {
                 if (it.repairingPlayer() != null && it.repairingPlayer().getUniqueId().equals(getUniqueId())) {

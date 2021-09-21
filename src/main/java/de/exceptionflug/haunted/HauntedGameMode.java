@@ -4,6 +4,7 @@ import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.haunted.phases.HauntedLobbyPhase;
+import de.exceptionflug.projectvenom.game.Configurator;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.GameContextBuilder;
 import de.exceptionflug.projectvenom.game.behaviours.RoundBasedGameBehaviour;
@@ -26,6 +27,7 @@ public class HauntedGameMode extends JavaPlugin {
     @Override
     public void onEnable() {
         context = GameContextBuilder.create(this)
+                .configurator(Configurator.create().options(HauntedOptions.class))
                 .behaviour(RoundBasedGameBehaviour.create(HauntedIngamePhase.class, HauntedLobbyPhase.class))
                 .gamePlayerFactory(HauntedPlayer::new)
                 .gameMapFactory(HauntedMap::new)

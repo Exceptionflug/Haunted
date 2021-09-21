@@ -148,6 +148,9 @@ public class Gun implements Weapon {
         player.getInventory().setItem(slot, updateItem());
         player.getWorld().playSound(player.getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         Bukkit.getScheduler().runTaskLater(gameContext.plugin(), () -> {
+            if (!gameContext.phase().ingamePhase()) {
+                return;
+            }
             int needed = gunType().rounds() - rounds;
             rounds = ammunition >= needed ? rounds + needed : rounds + ammunition;
             ammunition -= rounds;
@@ -162,6 +165,10 @@ public class Gun implements Weapon {
 
             @Override
             public void run() {
+                if (!gameContext.phase().ingamePhase()) {
+                    cancel();
+                    return;
+                }
                 if (count >= gunType.reloadDelay())
                     cancel();
                 double progress = (double)count / (double)gunType.reloadDelay();
