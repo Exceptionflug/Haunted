@@ -4,10 +4,13 @@ import com.google.inject.Inject;
 import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.game.gate.SectionGate;
+import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.haunted.shop.Shop;
+import de.exceptionflug.haunted.switches.ElectricitySwitch;
 import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
+import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -33,7 +36,7 @@ public final class PlayerInteractListener implements Listener {
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         HauntedPlayer player = context.player(event.getPlayer());
-        if (player.spectator()) {
+        if (player.spectator() || !context.phase().ingamePhase()) {
             event.setCancelled(true);
             return;
         }
@@ -44,6 +47,9 @@ public final class PlayerInteractListener implements Listener {
         SectionGate sectionGate = context.<HauntedMap>currentMap().sectionGate(clickedBlock.getLocation());
         if (sectionGate != null) {
             if (sectionGate.price() > player.gold()) {
+                return;
+            }
+            if (sectionGate.requiresPower() && !context.<HauntedIngamePhase>phase().electricity()) {
                 return;
             }
             player.gold(player.gold() - sectionGate.price());
@@ -57,6 +63,29 @@ public final class PlayerInteractListener implements Listener {
             }
             if (!shop.interact(player)) {
                 event.setCancelled(true);
+            }
+        }
+        if (clickedBlock.getType() == Material.LEVER) {
+            ElectricitySwitch electricitySwitch = context.<HauntedMap>currentMap().electricitySwitch();
+            if (electricitySwitch == null) {
+                return;
+            }
+            if (clickedBlock.getLocation().getBlockX() == electricitySwitch.leverLocation().getBlockX() &&
+                    clickedBlock.getLocation().getBlockY() == electricitySwitch.leverLocation().getBlockY() &&
+                    clickedBlock.getLocation().getBlockZ() == electricitySwitch.leverLocation().getBlockZ()) {
+                if (electricitySwitch.pulled()) {
+                    event.setCancelled(true);
+                    return;
+                }
+                if (player.gold() < electricitySwitch.price()) {
+                    event.setCancelled(true);
+                    Message.send(player, player.context().messageConfiguration(), "Messages.canNotAfford", "§cDu kannst dir das nicht leisten!");
+                    return;
+                }
+                player.gold(player.gold() - electricitySwitch.price());
+                electricitySwitch.pulled(true);
+                electricitySwitch.hologram().despawn();
+                context.<HauntedIngamePhase>phase().electricity(player, true);
             }
         }
     }

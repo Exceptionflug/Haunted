@@ -4,6 +4,7 @@ import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.section.MapSection;
 import de.exceptionflug.haunted.shop.Shop;
+import de.exceptionflug.haunted.switches.ElectricitySwitch;
 import de.exceptionflug.haunted.util.CuboidRegion;
 import de.exceptionflug.haunted.wave.AbstractWave;
 import de.exceptionflug.haunted.wave.ConfiguredWave;
@@ -37,6 +38,7 @@ public class HauntedMap extends AbstractGameMap {
     private final Map<String, SectionGate> sectionGates = new ConcurrentHashMap<>();
     private final Map<String, MapSection> sections = new ConcurrentHashMap<>();
     private final GameContext context;
+    private ElectricitySwitch electricitySwitch;
 
     public HauntedMap(String mapName, SpigotConfig config, GameContext context) {
         super(context, mapName, config, PerPlayerTeleporter.create(mapName, context));
@@ -50,7 +52,19 @@ public class HauntedMap extends AbstractGameMap {
         loadMobGates();
         loadSectionGates();
         loadShops();
+        loadSwitch();
         loadWaves();
+    }
+
+    private void loadSwitch() {
+        if (!config().isSet("switch.location")) {
+            return;
+        }
+        electricitySwitch = new ElectricitySwitch(config().getLocation("switch.location"),
+                config().getLocation("switch.leverLocation"),
+                config().getOrSetDefault("switch.name", "Generator"),
+                config().getOrSetDefault("switch.price", 5000));
+        electricitySwitch.spawn();
     }
 
     private void loadShops() {
@@ -80,9 +94,10 @@ public class HauntedMap extends AbstractGameMap {
             Location pos2 = config().getLocation("sectiongates." + key + ".gate.pos2");
             Location hologram = config().getLocation("sectiongates." + key + ".hologram");
             int price = config().getOrSetDefault("sectiongates." + key + ".price", 1000);
+            boolean requiresPower = config().getOrSetDefault("sectiongates." + key + ".requiresPower", false);
             Set<String> materials = new HashSet<>(config().getOrSetDefault("sectiongates." + key + ".materials", Collections.singletonList(Material.IRON_BLOCK.name())));
             String displayName = config().getOrSetDefault("sectiongates." + key + ".displayName", "Bill Gates");
-            sectionGates.put(key, new SectionGate(new CuboidRegion(pos1, pos2), materials, hologram, displayName, price));
+            sectionGates.put(key, new SectionGate(new CuboidRegion(pos1, pos2), materials, hologram, displayName, price, requiresPower));
         }
         Bukkit.getLogger().info("Loaded " + mobGates.size() + " mob gates");
     }
@@ -175,6 +190,10 @@ public class HauntedMap extends AbstractGameMap {
             }
         }
         return null;
+    }
+
+    public ElectricitySwitch electricitySwitch() {
+        return electricitySwitch;
     }
 
     public SectionGate sectionGate(String name) {

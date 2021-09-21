@@ -11,6 +11,9 @@ import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.option.OptionComponent;
 import de.exceptionflug.projectvenom.game.phases.IngamePhase;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -33,12 +36,15 @@ import org.bukkit.scheduler.BukkitTask;
  *
  * @author Exceptionflug
  */
+@Accessors(fluent = true)
 public class HauntedIngamePhase extends IngamePhase {
 
     private long startedSince;
     private BukkitTask task;
     private AbstractWave wave;
     private int currentWave = 1;
+    @Getter
+    private boolean electricity;
 
     @Inject
     public HauntedIngamePhase(GameContext context) {
@@ -77,6 +83,16 @@ public class HauntedIngamePhase extends IngamePhase {
         this.wave = wave;
         wave.enable();
         Message.broadcast(context().players(), context().messageConfiguration(), "Messages.waveBroadcast", "§7Welle §6%wave% §7beginnt!", "%wave%", Integer.toString(wave.wave()));
+    }
+
+    public void electricity(HauntedPlayer player, boolean electricity) {
+        this.electricity = electricity;
+        if (electricity) {
+            Message.broadcast(context().players(), context().messageConfiguration(), "Messages.electricityOn", "§6%player% §7hat die §bElektrizität §7aktiviert.", "%player%", player.getName());
+            for (SectionGate gate : context().<HauntedMap>currentMap().sectionGates()) {
+                gate.electricity();
+            }
+        }
     }
 
     private void startGameLoop() {

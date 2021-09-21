@@ -1,9 +1,9 @@
 package de.exceptionflug.haunted.game.gate;
 
-import de.exceptionflug.haunted.DebugUtil;
 import de.exceptionflug.haunted.util.CuboidRegion;
 import de.exceptionflug.mccommons.holograms.Hologram;
 import de.exceptionflug.mccommons.holograms.Holograms;
+import de.exceptionflug.mccommons.holograms.line.TextHologramLine;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Location;
@@ -27,14 +27,17 @@ public final class SectionGate {
     private final Location hologramLocation;
     private final String displayName;
     private final int price;
+    private final boolean requiresPower;
     private Hologram hologram;
+    private TextHologramLine powerInteractLine;
 
-    public SectionGate(CuboidRegion region, Set<String> gateMaterials, Location hologramLocation, String displayName, int price) {
+    public SectionGate(CuboidRegion region, Set<String> gateMaterials, Location hologramLocation, String displayName, int price, boolean requiresPower) {
         this.region = region;
         this.gateMaterials = gateMaterials;
         this.hologramLocation = hologramLocation;
         this.displayName = displayName;
         this.price = price;
+        this.requiresPower = requiresPower;
     }
 
     public void spawnHologram() {
@@ -42,9 +45,19 @@ public final class SectionGate {
         hologram.appendLine(displayName);
         if (price != -1) {
             hologram.appendLine("Preis: §b"+price+" Gold");
-            hologram.appendLine("§7(Rechtsklick auf Wand)");
+        }
+        if (requiresPower) {
+            powerInteractLine = hologram.appendLine("§cBenötigt Strom");
+        } else {
+            powerInteractLine = hologram.appendLine("§7(Rechtsklick auf Wand)");
         }
         hologram.spawn();
+    }
+
+    public void electricity() {
+        if (requiresPower) {
+            powerInteractLine.setText("§7(Rechtsklick auf Wand)");
+        }
     }
 
     public void unlock() {
