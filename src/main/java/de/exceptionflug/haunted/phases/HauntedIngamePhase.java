@@ -103,7 +103,7 @@ public class HauntedIngamePhase extends IngamePhase {
         });
         task = Bukkit.getScheduler().runTaskTimer(context().plugin(), () -> {
             context().<HauntedPlayer>players().forEach(HauntedPlayer::update);
-            if (wave.done()) {
+            if (wave != null && wave.done()) {
                 currentWave ++;
                 AbstractWave wave = context().<HauntedMap>currentMap().wave(currentWave);
                 if (wave == null) {
