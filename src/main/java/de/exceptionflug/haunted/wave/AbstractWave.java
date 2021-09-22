@@ -38,6 +38,15 @@ public abstract class AbstractWave {
 
     public abstract List<Monster> entities();
 
+    public Monster monsterByEntity(Entity entity) {
+        for (Monster monster : entities()) {
+            if (monster.getEntity().getEntityId() == entity.getEntityId()) {
+                return monster;
+            }
+        }
+        return null;
+    }
+
     protected List<MobGate> optimalSpawnGates() {
         List<MobGate> out = new ArrayList<>();
         for (MobGate gate : context.<HauntedMap>currentMap().mobGates()) {
