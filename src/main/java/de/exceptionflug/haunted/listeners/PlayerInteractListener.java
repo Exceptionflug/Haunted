@@ -1,6 +1,7 @@
 package de.exceptionflug.haunted.listeners;
 
 import com.google.inject.Inject;
+import de.exceptionflug.haunted.DebugUtil;
 import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.game.gate.SectionGate;
