@@ -1,8 +1,9 @@
 package de.exceptionflug.haunted.monsters.goals;
 
 import de.exceptionflug.haunted.GateUtils;
+import de.exceptionflug.haunted.monster.GateMonster;
+import de.exceptionflug.haunted.wave.AbstractWave;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.PathfinderMob;
@@ -10,11 +11,15 @@ import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import org.bukkit.Bukkit;
 
 public class AttackGateGoal extends MoveToBlockGoal {
 
-    public AttackGateGoal(PathfinderMob entitycreature, double speed, int blockBreakTime) {
-        super(entitycreature, speed, 8, 1);
+    private final AbstractWave wave;
+
+    public AttackGateGoal(PathfinderMob entitycreature, double speed, int blockBreakTime, AbstractWave wave) {
+        super(entitycreature, speed, 8, 2);
+        this.wave = wave;
         this.blockBreakTime = blockBreakTime;
     }
 
@@ -38,7 +43,9 @@ public class AttackGateGoal extends MoveToBlockGoal {
     private int tryFindBlockFails = 0;
     private void failedTryFindBlock() {
         if (++tryFindBlockFails > 1) {
-            mob.goalSelector.removeGoal(this);
+            if (wave.monsterByEntityId(mob.getId()) instanceof GateMonster monster) {
+                Bukkit.getScheduler().runTask(wave.context().plugin(), monster::removeAttackGateGoal);
+            }
         }
     }
 

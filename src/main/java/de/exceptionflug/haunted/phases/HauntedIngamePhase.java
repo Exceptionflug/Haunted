@@ -177,4 +177,7 @@ public class HauntedIngamePhase extends IngamePhase {
         event.setCancelled(true);
     }
 
+    public AbstractWave wave() {
+        return wave;
+    }
 }

@@ -1,9 +1,10 @@
 package de.exceptionflug.haunted.monsters;
 
+import com.google.inject.Inject;
 import de.exceptionflug.haunted.EntityUtils;
 import de.exceptionflug.haunted.monster.GateMonster;
+import de.exceptionflug.projectvenom.game.GameContext;
 import lombok.Getter;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import org.bukkit.Location;
@@ -22,6 +23,11 @@ public class ZombieMonster extends GateMonster {
 
     public boolean shouldAddZombieAttackGoal = true;
     private ZombieAttackGoal zombieAttackGoal;
+
+    @Inject
+    public ZombieMonster(GameContext gameContext) {
+        super(gameContext);
+    }
 
     @Override
     public void spawn(Location location) {

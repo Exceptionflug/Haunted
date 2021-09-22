@@ -1,8 +1,8 @@
 package de.exceptionflug.haunted.monsters;
 
+import com.google.inject.Inject;
 import de.exceptionflug.haunted.monster.GateMonster;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
+import de.exceptionflug.projectvenom.game.GameContext;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import org.bukkit.Location;
 import org.bukkit.entity.Skeleton;
@@ -10,6 +10,11 @@ import org.bukkit.entity.Skeleton;
 public class SkeletonMonster extends GateMonster {
 
     private Skeleton skeleton;
+
+    @Inject
+    public SkeletonMonster(GameContext context) {
+        super(context);
+    }
 
     @Override
     public void spawn(Location location) {

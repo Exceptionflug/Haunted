@@ -1,6 +1,8 @@
 package de.exceptionflug.haunted.monster;
 
 import de.exceptionflug.haunted.monsters.goals.AttackGateGoal;
+import de.exceptionflug.haunted.phases.HauntedIngamePhase;
+import de.exceptionflug.projectvenom.game.GameContext;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -14,13 +16,19 @@ import org.bukkit.entity.LivingEntity;
 
 public abstract class GateMonster extends Monster {
 
+    private final GameContext context;
+
     public boolean shouldAddMeleeAttackGoal = true;
     private AttackGateGoal attackGateGoal;
+
+    protected GateMonster(GameContext context) {
+        this.context = context;
+    }
 
     public void spawn(LivingEntity entity, Location location) {
         super.spawn(entity, location);
         if (getNmsEntity() instanceof PathfinderMob mob) {
-            attackGateGoal = new AttackGateGoal(mob, 1.0D, 15);
+            attackGateGoal = new AttackGateGoal(mob, 1.0D, 15, context.<HauntedIngamePhase>phase().wave());
             mob.goalSelector.removeAllGoals();
             mob.goalSelector.addGoal(1, attackGateGoal);
             if (shouldAddMeleeAttackGoal) mob.goalSelector.addGoal(4, new MeleeAttackGoal(mob, 1.0D, true));

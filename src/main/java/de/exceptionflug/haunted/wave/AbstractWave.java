@@ -39,8 +39,12 @@ public abstract class AbstractWave {
     public abstract List<Monster> entities();
 
     public Monster monsterByEntity(Entity entity) {
+        return monsterByEntityId(entity.getEntityId());
+    }
+
+    public Monster monsterByEntityId(int id) {
         for (Monster monster : entities()) {
-            if (monster.getEntity().getEntityId() == entity.getEntityId()) {
+            if (monster.getEntity().getEntityId() == id) {
                 return monster;
             }
         }
