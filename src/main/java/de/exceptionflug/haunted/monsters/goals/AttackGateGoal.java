@@ -14,7 +14,7 @@ import net.minecraft.world.level.LevelReader;
 public class AttackGateGoal extends MoveToBlockGoal {
 
     public AttackGateGoal(PathfinderMob entitycreature, double speed, int blockBreakTime) {
-        super(entitycreature, speed, 24, 3);
+        super(entitycreature, speed, 8, 1);
         this.blockBreakTime = blockBreakTime;
     }
 
@@ -35,6 +35,13 @@ public class AttackGateGoal extends MoveToBlockGoal {
         }
     }
 
+    private int tryFindBlockFails = 0;
+    private void failedTryFindBlock() {
+        if (++tryFindBlockFails > 1) {
+            mob.goalSelector.removeGoal(this);
+        }
+    }
+
     private boolean tryFindBlock() {
         if (this.blockPos != null && this.isValidTarget(this.mob.level, this.blockPos)) {
             return true;
@@ -42,6 +49,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
             this.blockPos = GateUtils.getDamageableGateBlock(this.blockPos);
             return true;
         }
+        failedTryFindBlock();
         return false;
     }
 

@@ -11,6 +11,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class SelfExplodeGoal extends Goal {
@@ -73,5 +74,7 @@ public class SelfExplodeGoal extends Goal {
         this.mob.playSound(SoundEvents.GENERIC_EXPLODE, 4.0F, 1.0F);
         //this.mob.level.addParticle(ParticleTypes.EXPLOSION, this.mob.position().x, this.mob.position().y, this.mob.position().z, 1.0D, 0.0D, 0.0D);
         this.monster.getEntity().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, this.monster.getEntity().getLocation(), 10);
+        this.monster.getEntity().getWorld().getNearbyEntities(this.monster.getEntity().getLocation(), 4, 2, 4, entity -> entity instanceof Player)
+                .forEach(entity -> ((org.bukkit.entity.LivingEntity) entity).damage(5, this.monster.getEntity()));
     }
 }

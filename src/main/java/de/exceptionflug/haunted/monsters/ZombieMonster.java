@@ -1,10 +1,13 @@
 package de.exceptionflug.haunted.monsters;
 
+import de.exceptionflug.haunted.EntityUtils;
 import de.exceptionflug.haunted.monster.GateMonster;
 import lombok.Getter;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Zombie;
 
 /**
@@ -22,7 +25,7 @@ public class ZombieMonster extends GateMonster {
 
     @Override
     public void spawn(Location location) {
-        zombie = location.getWorld().spawn(location, Zombie.class);
+        zombie = (Zombie) EntityUtils.spawnCleanEntity(location, EntityType.ZOMBIE);
         if (shouldAddZombieAttackGoal) this.shouldAddMeleeAttackGoal = false;
         super.spawn(zombie, location);
         if (shouldAddZombieAttackGoal && getNmsEntity() instanceof PathfinderMob mob) {
