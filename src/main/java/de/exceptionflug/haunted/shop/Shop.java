@@ -11,6 +11,7 @@ import org.bukkit.Location;
 public interface Shop {
 
     void spawn();
+    void despawn();
 
     Location triggerLocation();
 

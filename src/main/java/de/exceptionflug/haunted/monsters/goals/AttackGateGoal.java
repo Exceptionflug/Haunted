@@ -18,7 +18,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
     private final AbstractWave wave;
 
     public AttackGateGoal(PathfinderMob entitycreature, double speed, int blockBreakTime, AbstractWave wave) {
-        super(entitycreature, speed, 8, 2);
+        super(entitycreature, speed, 8, 3);
         this.wave = wave;
         this.blockBreakTime = blockBreakTime;
     }

@@ -1,7 +1,10 @@
 package de.exceptionflug.haunted.wave.config;
 
 import de.exceptionflug.haunted.DebugUtil;
+import de.exceptionflug.haunted.game.HauntedMap;
+import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.monster.Monster;
+import de.exceptionflug.haunted.shop.Shop;
 import de.exceptionflug.haunted.wave.ConfiguredWave;
 import de.exceptionflug.regisseur.Cutscene;
 import de.exceptionflug.regisseur.path.Position;
@@ -11,6 +14,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -260,7 +264,27 @@ public class InstructionExecutor {
                 }
             }
             Bukkit.getScheduler().runTask(wave.context().plugin(), () -> {
+                for (SectionGate gate : wave.context().<HauntedMap>currentMap().sectionGates()) {
+                    gate.despawn();
+                }
+                for (Shop shop : wave.context().<HauntedMap>currentMap().shops()) {
+                    shop.despawn();
+                }
                 cutscene.startTravelling((int) statement.arguments()[0], wave.context().currentMap().spectatorSpawn().getWorld());
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (!cutscene.isTravelling()) {
+                            cancel();
+                            for (SectionGate gate : wave.context().<HauntedMap>currentMap().sectionGates()) {
+                                gate.spawnHologram();
+                            }
+                            for (Shop shop : wave.context().<HauntedMap>currentMap().shops()) {
+                                shop.spawn();
+                            }
+                        }
+                    }
+                }.runTaskTimer(wave.context().plugin(), 10, 10);
             });
         }
         return null;

@@ -220,4 +220,7 @@ public class HauntedMap extends AbstractGameMap {
         loadWaves();
     }
 
+    public Collection<Shop> shops() {
+        return shopMap.values();
+    }
 }

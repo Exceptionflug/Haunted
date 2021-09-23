@@ -35,11 +35,23 @@ public class GunShop implements Shop {
 
     @Override
     public void spawn() {
+        if (hologram != null) {
+            if (!hologram.isDespawned()) {
+                return;
+            }
+            hologram.spawn();
+            return;
+        }
         hologram = Holograms.createHologram(location);
         hologram.appendLine("§b" + gunType.displayName());
         hologram.appendLine(new ItemStack(gunType.itemType()));
         hologram.appendLine("§7Preis: §b" + weaponPrice + " Gold");
         hologram.appendLine("§7(Rechtsklick auf Knopf)");
+    }
+
+    @Override
+    public void despawn() {
+        hologram.despawn();
     }
 
     @Override

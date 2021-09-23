@@ -41,6 +41,13 @@ public final class SectionGate {
     }
 
     public void spawnHologram() {
+        if (hologram != null) {
+            if (!hologram.isDespawned()) {
+                return;
+            }
+            hologram.spawn();
+            return;
+        }
         hologram = Holograms.createHologram(hologramLocation);
         hologram.appendLine(displayName);
         if (price != -1) {
@@ -52,6 +59,10 @@ public final class SectionGate {
             powerInteractLine = hologram.appendLine("§7(Rechtsklick auf Wand)");
         }
         hologram.spawn();
+    }
+
+    public void despawn() {
+        hologram.despawn();
     }
 
     public void electricity() {
