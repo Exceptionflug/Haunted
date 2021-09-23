@@ -4,7 +4,9 @@ import com.google.inject.Inject;
 import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.game.gate.MobGate;
+import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
+import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
 import org.bukkit.Bukkit;
@@ -52,8 +54,15 @@ public final class ToggleSneakListener implements Listener {
     }
 
     private void processMobGate(PlayerToggleSneakEvent event) {
+        HauntedPlayer player = game.player(event.getPlayer());
+        if (player.spectator()) {
+            return;
+        }
         MobGate mobGate = game.<HauntedMap>currentMap().mobGateByRepairZone(event.getPlayer().getLocation());
         if (mobGate != null) {
+            if (!game.phase().ingamePhase()) {
+                return;
+            }
             Bukkit.getScheduler().runTaskLater(game.plugin(), () -> {
                 if (event.getPlayer().isSneaking() && !mobGate.repaired()) {
                     if (mobGate.repairingPlayer() != null) {

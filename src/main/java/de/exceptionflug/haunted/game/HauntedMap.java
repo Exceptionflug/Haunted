@@ -223,4 +223,8 @@ public class HauntedMap extends AbstractGameMap {
     public Collection<Shop> shops() {
         return shopMap.values();
     }
+
+    public Collection<MapSection> sections() {
+        return sections.values();
+    }
 }

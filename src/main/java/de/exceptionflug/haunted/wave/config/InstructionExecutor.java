@@ -284,7 +284,7 @@ public class InstructionExecutor {
                             }
                         }
                     }
-                }.runTaskTimer(wave.context().plugin(), 10, 10);
+                }.runTaskTimerAsynchronously(wave.context().plugin(), 10, 10);
             });
         }
         return null;

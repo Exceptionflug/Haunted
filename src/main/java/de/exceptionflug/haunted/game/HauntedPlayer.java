@@ -3,8 +3,10 @@ package de.exceptionflug.haunted.game;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.mojang.authlib.GameProfile;
 import de.exceptionflug.haunted.game.gate.MobGate;
+import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.npc.NPC;
 import de.exceptionflug.haunted.perk.Perk;
+import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.haunted.section.MapSection;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.haunted.weapon.GunType;
@@ -277,6 +279,14 @@ public class HauntedPlayer extends GamePlayer {
         HauntedMap hauntedMap = context().currentMap();
         MobGate mobGate = hauntedMap.mobGateByRepairZone(getLocation());
         if (mobGate != null && isSneaking()) {
+            if (context().<HauntedIngamePhase>phase().wave() != null) {
+                for (Monster monster : context().<HauntedIngamePhase>phase().wave().entities()) {
+                    if (monster.getEntity().getLocation().distance(getLocation()) < 12) {
+                        Message.send(this, context().messageConfiguration(), "Messages.monstersNearby", "§cEs sind Monster in der Nähe.");
+                        return;
+                    }
+                }
+            }
             if (mobGate.repairingPlayer() != null) {
                 if (!mobGate.repairingPlayer().getUniqueId().equals(getUniqueId())) {
                     return;

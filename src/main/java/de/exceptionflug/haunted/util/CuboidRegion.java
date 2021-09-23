@@ -3,6 +3,7 @@ package de.exceptionflug.haunted.util;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Location;
+import org.bukkit.entity.ShulkerBullet;
 
 import java.util.ArrayList;
 import java.util.Iterator;

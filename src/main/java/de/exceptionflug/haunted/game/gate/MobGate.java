@@ -2,6 +2,8 @@ package de.exceptionflug.haunted.game.gate;
 
 import de.exceptionflug.haunted.DebugUtil;
 import de.exceptionflug.haunted.util.CuboidRegion;
+import de.exceptionflug.haunted.util.HighlightUtil;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -146,6 +148,11 @@ public final class MobGate {
 
     public String mapSection() {
         return mapSection;
+    }
+
+    public void debug() {
+        HighlightUtil.highlight(repairRegion, ChatColor.GREEN);
+        HighlightUtil.highlight(gateRegion, ChatColor.RED);
     }
 
     private static class MobGateBlock {
