@@ -21,7 +21,8 @@ public enum GunType {
     POSEIDONS_REVENGE("§5Poseidon's Rache", 300, 1, 0, 3, 3, 12, 0, 0.1, 60, 0.05, 8, Trident.class, Material.GOLDEN_SHOVEL, Sound.ITEM_TRIDENT_THROW, 2, Sound.ITEM_TRIDENT_RETURN, 2),
     ROCKET_LAUNCHER("Raketenwerfer", 300, 1, 0, 2, 1, 5, 1000, 0.5, 60, 0.05, 12, WitherSkull.class, Material.GOLDEN_HOE, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 2, Sound.BLOCK_PISTON_EXTEND, 1),
     POTION_THROWER("§5Trankschleuder", 300, 1, 0, 1, 3, 5, 1000, 0.1, 60, 0.05, 12, LingeringPotion.class, Material.CROSSBOW, Sound.ENTITY_LINGERING_POTION_THROW, 2, Sound.ENTITY_IRON_GOLEM_REPAIR, 2),
-    SNIPER("Sniper", 100, 1, 0, 5, 1, 1, 1000, 0.7, 20, 0, 60, LlamaSpit.class, Material.NETHERITE_HOE, Sound.ENTITY_GENERIC_EXPLODE, 2, Sound.BLOCK_PISTON_EXTEND, 0);
+    SNIPER("Sniper", 100, 1, 0, 5, 1, 1, 1000, 0.7, 20, 0, 60, LlamaSpit.class, Material.NETHERITE_HOE, Sound.ENTITY_GENERIC_EXPLODE, 2, Sound.BLOCK_PISTON_EXTEND, 0),
+    SNOWBALL_CANON("Schneeballkanone", 300, 1, 0, 2, 6, 1, 1000, 0.5, 20, 0.05, 6, Snowball.class, Material.IRON_SHOVEL, Sound.ENTITY_SNOWBALL_THROW, 2, Sound.BLOCK_SNOW_BREAK, 0);
 
     private final String displayName;
     private final int maxAmmunition;

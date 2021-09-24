@@ -93,11 +93,15 @@ public class HauntedMap extends AbstractGameMap {
             Location pos1 = config().getLocation("sectiongates." + key + ".gate.pos1");
             Location pos2 = config().getLocation("sectiongates." + key + ".gate.pos2");
             Location hologram = config().getLocation("sectiongates." + key + ".hologram");
+            Location hologram2 = null;
+            if (config().isSet("sectiongates." + key + ".hologram2")) {
+                hologram2 = config().getLocation("sectiongates." + key + ".hologram2");
+            }
             int price = config().getOrSetDefault("sectiongates." + key + ".price", 1000);
             boolean requiresPower = config().getOrSetDefault("sectiongates." + key + ".requiresPower", false);
             Set<String> materials = new HashSet<>(config().getOrSetDefault("sectiongates." + key + ".materials", Collections.singletonList(Material.IRON_BLOCK.name())));
             String displayName = config().getOrSetDefault("sectiongates." + key + ".displayName", "Bill Gates");
-            sectionGates.put(key, new SectionGate(new CuboidRegion(pos1, pos2), materials, hologram, displayName, price, requiresPower));
+            sectionGates.put(key, new SectionGate(new CuboidRegion(pos1, pos2), materials, hologram, hologram2, displayName, price, requiresPower));
         }
         Bukkit.getLogger().info("Loaded " + mobGates.size() + " mob gates");
     }

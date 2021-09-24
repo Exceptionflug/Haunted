@@ -12,24 +12,28 @@ import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.option.OptionComponent;
 import de.exceptionflug.projectvenom.game.phases.IngamePhase;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
+import org.spigotmc.event.entity.EntityDismountEvent;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Date: 10.08.2021
@@ -45,6 +49,7 @@ public class HauntedIngamePhase extends IngamePhase {
     private int currentWave = 1;
     @Getter
     private boolean electricity;
+    private long waveTime;
 
     @Inject
     public HauntedIngamePhase(GameContext context) {
@@ -80,6 +85,7 @@ public class HauntedIngamePhase extends IngamePhase {
         if (this.wave != null) {
             this.wave.disable();
         }
+        this.waveTime = System.currentTimeMillis();
         this.wave = wave;
         wave.enable();
         Message.broadcast(context().players(), context().messageConfiguration(), "Messages.waveBroadcast", "§7Welle §6%wave% §7beginnt!", "%wave%", Integer.toString(wave.wave()));
@@ -88,6 +94,7 @@ public class HauntedIngamePhase extends IngamePhase {
     public void electricity(HauntedPlayer player, boolean electricity) {
         this.electricity = electricity;
         if (electricity) {
+            context().players().forEach(player1 -> player1.playSound(player1.getLocation(), Sound.ENTITY_WITHER_DEATH, 5, 1));
             Message.broadcast(context().players(), context().messageConfiguration(), "Messages.electricityOn", "§6%player% §7hat die §bElektrizität §7aktiviert.", "%player%", player.getName());
             for (SectionGate gate : context().<HauntedMap>currentMap().sectionGates()) {
                 gate.electricity();
@@ -104,13 +111,29 @@ public class HauntedIngamePhase extends IngamePhase {
         task = Bukkit.getScheduler().runTaskTimer(context().plugin(), () -> {
             context().<HauntedPlayer>players().forEach(HauntedPlayer::update);
             if (!OptionComponent.value(HauntedOptions.DEBUG_MODE)) {
-                if (wave != null && wave.done()) {
-                    currentWave ++;
-                    AbstractWave wave = context().<HauntedMap>currentMap().wave(currentWave);
-                    if (wave == null) {
-                        endGame(context().players());
+                if (wave != null) {
+                    if (wave.done()) {
+                        currentWave ++;
+                        AbstractWave wave = context().<HauntedMap>currentMap().wave(currentWave);
+                        if (wave == null) {
+                            endGame(context().players());
+                        } else {
+                            for (HauntedPlayer player : context().<HauntedPlayer>players()) {
+                                if (player.dead()) {
+                                    player.respawn();
+                                    player.sendTitle("§aDu wurdest wiederbelebt!", "", 10, 40, 10);
+                                }
+                            }
+                            initWave(wave);
+                        }
                     } else {
-                        initWave(wave);
+                        if (System.currentTimeMillis() - waveTime > 120000) {
+                            wave.entities().forEach(monster -> {
+                                if (!monster.getEntity().isDead() && !monster.getEntity().isGlowing()) {
+                                    monster.getEntity().setGlowing(true);
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -138,6 +161,21 @@ public class HauntedIngamePhase extends IngamePhase {
     public void onBlockBreak(BlockBreakEvent event) {
         if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onDismount(EntityDismountEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onTarget(EntityTargetEvent event) {
+        if (event.getTarget() instanceof Player) {
+            HauntedPlayer player = context().player(event.getTarget().getUniqueId());
+            if (player.spectator()) {
+                event.setTarget(context().alivePlayers().get(ThreadLocalRandom.current().nextInt(context().alivePlayers().size())));
+            }
         }
     }
 
@@ -181,5 +219,9 @@ public class HauntedIngamePhase extends IngamePhase {
 
     public AbstractWave wave() {
         return wave;
+    }
+
+    public int currentWave() {
+        return currentWave;
     }
 }

@@ -1,14 +1,19 @@
 package de.exceptionflug.haunted.game.gate;
 
 import de.exceptionflug.haunted.DebugUtil;
+import de.exceptionflug.haunted.HauntedGameMode;
 import de.exceptionflug.haunted.util.CuboidRegion;
 import de.exceptionflug.haunted.util.HighlightUtil;
+import de.exceptionflug.mccommons.holograms.Hologram;
+import de.exceptionflug.mccommons.holograms.Holograms;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Debug;
 
 import java.util.*;
@@ -153,6 +158,11 @@ public final class MobGate {
     public void debug() {
         HighlightUtil.highlight(repairRegion, ChatColor.GREEN);
         HighlightUtil.highlight(gateRegion, ChatColor.RED);
+    }
+
+    public void asyncDebug() {
+        Hologram hologram = Holograms.createHologram(spawnLocation.clone().add(0, 1, 0));
+        hologram.appendLine("§7" + mapSection);
     }
 
     private static class MobGateBlock {

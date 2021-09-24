@@ -10,6 +10,7 @@ import de.exceptionflug.mccommons.commands.api.input.CommandInput;
 import de.exceptionflug.mccommons.commands.spigot.command.SpigotCommand;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -42,6 +43,11 @@ public class DebugCommand extends SpigotCommand {
         HauntedMap map = context.currentMap();
         map.sectionGates().forEach(sectionGate -> HighlightUtil.highlight(sectionGate.region(), ChatColor.BLUE));
         map.mobGates().forEach(MobGate::debug);
+        Bukkit.getScheduler().runTaskAsynchronously(context.plugin(), () -> {
+           for (MobGate mobGate : map.mobGates()) {
+               mobGate.asyncDebug();
+           }
+        });
         player.sendMessage("Debug an");
     }
 
@@ -60,7 +66,6 @@ public class DebugCommand extends SpigotCommand {
                 HighlightUtil.highlight(region, finalRandom);
             });
         });
-        map.mobGates().forEach(MobGate::debug);
         player.sendMessage("Debug an");
     }
 
