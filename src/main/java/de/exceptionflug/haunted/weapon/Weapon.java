@@ -12,4 +12,6 @@ public interface Weapon {
 
     void give(HauntedPlayer player, int slot);
 
+    void destroy();
+
 }

@@ -247,6 +247,9 @@ public class HauntedPlayer extends GamePlayer {
 
     public void primaryWeapon(Weapon gun) {
         if (!spectator()) {
+            if (primaryWeapon != null) {
+                primaryWeapon.destroy();
+            }
             primaryWeapon = gun;
         }
         giveIngameItems();
@@ -254,6 +257,9 @@ public class HauntedPlayer extends GamePlayer {
 
     public void secondaryWeapon(Weapon gun) {
         if (!spectator()) {
+            if (secondaryWeapon != null) {
+                secondaryWeapon.destroy();
+            }
             secondaryWeapon = gun;
         }
         giveIngameItems();
@@ -261,6 +267,9 @@ public class HauntedPlayer extends GamePlayer {
 
     public void thirdWeapon(Weapon gun) {
         if (!spectator()) {
+            if (thirdWeapon != null) {
+                thirdWeapon.destroy();
+            }
             thirdWeapon = gun;
         }
         giveIngameItems();

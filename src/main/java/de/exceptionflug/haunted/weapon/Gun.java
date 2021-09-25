@@ -49,6 +49,8 @@ public class Gun implements Weapon {
     private boolean reloading;
     private long lastShot;
     private int slot;
+    @Setter
+    private boolean destroyed;
 
     public Gun(GunType gunType, HauntedPlayer player, GameContext gameContext) {
         this.gunType = gunType;
@@ -76,6 +78,9 @@ public class Gun implements Weapon {
                 Bukkit.getScheduler().runTask(gameContext.plugin(), () -> {
                     if (rounds == 0) {
                         reload();
+                        return;
+                    }
+                    if (destroyed) {
                         return;
                     }
                     this.slot = slot;
@@ -134,7 +139,7 @@ public class Gun implements Weapon {
     }
 
     public void reload() {
-        if (reloading) {
+        if (reloading || destroyed) {
             return;
         }
         if (rounds == gunType().rounds()) {
@@ -148,7 +153,7 @@ public class Gun implements Weapon {
         player.getInventory().setItem(slot, updateItem());
         player.getWorld().playSound(player.getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         Bukkit.getScheduler().runTaskLater(gameContext.plugin(), () -> {
-            if (!gameContext.phase().ingamePhase()) {
+            if (!gameContext.phase().ingamePhase() || destroyed) {
                 return;
             }
             int needed = gunType().rounds() - rounds;
@@ -165,7 +170,7 @@ public class Gun implements Weapon {
 
             @Override
             public void run() {
-                if (!gameContext.phase().ingamePhase()) {
+                if (!gameContext.phase().ingamePhase() || destroyed) {
                     cancel();
                     return;
                 }
@@ -210,6 +215,11 @@ public class Gun implements Weapon {
                 reload();
             }
         });
+    }
+
+    @Override
+    public void destroy() {
+        destroyed = true;
     }
 
 }
