@@ -109,7 +109,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
     }
 
     protected BlockPos getMoveToTarget() {
-        if (GateUtils.isGateBlock(this.blockPos.down())) return this.blockPos.down();
+        if (GateUtils.isGateBlock(this.blockPos.below())) return this.blockPos.below();
         return this.blockPos;
     }
 

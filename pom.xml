@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>16</maven.compiler.source>
         <maven.compiler.target>16</maven.compiler.target>
-        <spigot.version>1.17.1-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.18-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <repositories>
@@ -33,18 +33,11 @@
         </repository>
         <repository>
             <id>dmulloy2-repo</id>
-            <url>http://repo.dmulloy2.net/content/groups/public/</url>
+            <url>https://repo.dmulloy2.net/content/groups/public/</url>
         </repository>
     </repositories>
 
     <dependencies>
-        <!--<dependency>
-            <groupId>de.cytooxien.tuinity</groupId>
-            <artifactId>cxn-tuinity</artifactId>
-            <version>1.17-R1-SNAPSHOT</version>
-            <classifier>remapped-mojang</classifier>
-            <scope>provided</scope>
-        </dependency>-->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
@@ -109,13 +102,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.20</version>
+            <version>1.18.22</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
+            <version>1.7.32</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
