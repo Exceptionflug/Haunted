@@ -38,7 +38,6 @@ public class NPC {
     public void spawn() {
         sendPacket(createPlayerInfoPacket(EnumWrappers.PlayerInfoAction.ADD_PLAYER));
         sendPacket(createSpawnPacket());
-        sendPacket(createBedDeclarePacket());
         sendPacket(createLayingPacket());
         Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(HauntedGameMode.class), () -> {
             sendPacket(createPlayerInfoPacket(EnumWrappers.PlayerInfoAction.REMOVE_PLAYER));
@@ -84,16 +83,6 @@ public class NPC {
         spawn.setPitch(location.getPitch());
         spawn.setPlayerUUID(gameProfile.getId());
         return spawn.getHandle();
-    }
-
-    private PacketContainer createBedDeclarePacket() {
-        Location location = this.location.getBlock().getRelative(BlockFace.DOWN).getLocation();
-
-        WrapperPlayServerTileEntityData tileEntityData = new WrapperPlayServerTileEntityData();
-        tileEntityData.setAction(11);
-        tileEntityData.setLocation(new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
-        tileEntityData.setNbtData(NbtFactory.ofCompound("test"));
-        return tileEntityData.getHandle();
     }
 
     private PacketContainer createLayingPacket() {

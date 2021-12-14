@@ -326,7 +326,7 @@ public class HauntedPlayer extends GamePlayer {
     private void checkRepairing() {
         HauntedMap hauntedMap = context().currentMap();
         MobGate mobGate = hauntedMap.mobGateByRepairZone(getLocation());
-        if (mobGate != null && isSneaking()) {
+        if (mobGate != null && isSneaking() && !spectator()) {
             if (context().<HauntedIngamePhase>phase().wave() != null) {
                 for (Monster monster : context().<HauntedIngamePhase>phase().wave().entities()) {
                     LivingEntity entity = monster.getEntity();

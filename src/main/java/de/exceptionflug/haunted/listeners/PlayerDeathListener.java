@@ -5,6 +5,7 @@ import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -26,17 +27,21 @@ public final class PlayerDeathListener implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
-        event.getDrops().clear();
-        event.setDeathMessage(null);
-        //event.setShouldDropExperience(false);
-        //event.setCancelled(true);
-        HauntedPlayer player = gameContext.player(event.getEntity());
-        if (player != null) {
-            player.playerDied();
-        }
-        if (gameContext.alivePlayers().size() == 0) {
-            HauntedIngamePhase phase = gameContext.phase();
-            phase.endGame();
+        try {
+            event.getDrops().clear();
+            event.setDeathMessage(null);
+            //event.setShouldDropExperience(false);
+            //event.setCancelled(true);
+            HauntedPlayer player = gameContext.player(event.getEntity());
+            if (player != null) {
+                player.playerDied();
+            }
+            if (gameContext.alivePlayers().size() == 0) {
+                HauntedIngamePhase phase = gameContext.phase();
+                phase.endGame();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
