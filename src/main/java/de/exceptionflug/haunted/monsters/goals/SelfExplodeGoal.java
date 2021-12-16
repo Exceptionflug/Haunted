@@ -1,7 +1,6 @@
 package de.exceptionflug.haunted.monsters.goals;
 
 import de.exceptionflug.haunted.monster.Monster;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -39,6 +38,7 @@ public class SelfExplodeGoal extends Goal {
     }
 
     public void tick() {
+        System.out.println("TICK");
         if (this.target == null) {
             this.fuseTime = -1;
         } else if (this.mob.distanceToSqr(this.target) > 49.0D) {
@@ -69,6 +69,7 @@ public class SelfExplodeGoal extends Goal {
     }
 
     private void explode() {
+        System.out.println("EXPLODE");
         this.mob.die(DamageSource.explosion((LivingEntity) null));
         this.mob.discard();
         this.mob.playSound(SoundEvents.GENERIC_EXPLODE, 4.0F, 1.0F);

@@ -1,22 +1,18 @@
 package de.exceptionflug.haunted.game.gate;
 
-import de.exceptionflug.haunted.DebugUtil;
-import de.exceptionflug.haunted.HauntedGameMode;
 import de.exceptionflug.haunted.util.CuboidRegion;
 import de.exceptionflug.haunted.util.HighlightUtil;
 import de.exceptionflug.mccommons.holograms.Hologram;
 import de.exceptionflug.mccommons.holograms.Holograms;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Debug;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -103,10 +99,10 @@ public final class MobGate {
         }
     }
 
-    public void repairGate(int blocks) {
-        for (int i = 0; i < blocks; i++) {
+    public Location repairGate(int blocks) {
+        //for (int i = 0; i < blocks; i++) {
             if (repaired()) {
-                return;
+                return null;
             }
             List<MobGateBlock> brokenBlocks = gateBlocks.stream().filter(mobGateBlock -> mobGateBlock.broken).collect(Collectors.toList());
             MobGateBlock gateBlock = brokenBlocks.get(ThreadLocalRandom.current().nextInt(0, brokenBlocks.size()));
@@ -115,7 +111,8 @@ public final class MobGate {
             block.setBlockData(gateBlock.blockData, true);
             gateBlock.broken = false;
             block.getWorld().playSound(block.getLocation(), block.getBlockData().getSoundGroup().getPlaceSound(), 1, 1);
-        }
+            return gateBlock.location;
+        //}
     }
 
     public boolean repaired() {

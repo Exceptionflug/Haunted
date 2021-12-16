@@ -1,13 +1,14 @@
 package de.exceptionflug.haunted.listeners;
 
 import com.google.inject.Inject;
-import de.exceptionflug.haunted.DebugUtil;
+import de.exceptionflug.haunted.EntityUtils;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
 import org.bukkit.Sound;
-import org.bukkit.entity.Mob;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -62,10 +63,24 @@ public final class EntityDamageByEntityListener implements Listener {
                 }
                 if (projectile.getPersistentDataContainer().has(Gun.HEADSHOT_KEY, PersistentDataType.BYTE)) {
                     shooter.giveGold(10);
+                    EntityUtils.spawnPointsHologram(event.getEntity().getLocation(), "§6+10");
                     shooter.playSound(shooter.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
                     event.setDamage(EntityDamageEvent.DamageModifier.BASE, event.getDamage() * 1.5D);
                 } else {
                     shooter.giveGold(5);
+                    EntityUtils.spawnPointsHologram(event.getEntity().getLocation(), "§6+5");
+                }
+                Entity entity = event.getEntity();
+                if (entity.isInvulnerable()) {
+                    if (entity.getPassengers().size() > 0) {
+                        entity.getPassengers().forEach(e -> {
+                            if (!e.isInvulnerable() && e instanceof LivingEntity le) le.damage(event.getDamage(), event.getDamager());
+                        });
+                    }
+                    if (entity.getVehicle() != null) {
+                        Entity e = entity.getVehicle();
+                        if (!e.isInvulnerable() && e instanceof LivingEntity le) le.damage(event.getDamage(), event.getDamager());
+                    }
                 }
             }
         }

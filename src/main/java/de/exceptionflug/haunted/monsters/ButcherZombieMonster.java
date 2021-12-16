@@ -1,7 +1,5 @@
 package de.exceptionflug.haunted.monsters;
 
-import com.google.inject.Inject;
-import de.exceptionflug.projectvenom.game.GameContext;
 import lombok.Getter;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
@@ -17,11 +15,6 @@ public class ButcherZombieMonster extends ZombieMonster {
     private ZombieVillager zombie;
 
     private ZombieAttackGoal zombieAttackGoal;
-
-    @Inject
-    public ButcherZombieMonster(GameContext context) {
-        super(context);
-    }
 
     @Override
     public void spawn(Location location) {

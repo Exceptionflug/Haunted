@@ -4,8 +4,6 @@ import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.projectvenom.game.GameContext;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.level.block.Block;
 import org.bukkit.Location;
 
 import java.util.HashMap;
@@ -73,7 +71,10 @@ public class GateUtils {
     }
 
     public static void breakGateBlock(BlockPos blockPos) {
-        Location location = blockPosToLocation(blockPos);
+        breakGateBlock(blockPosToLocation(blockPos));
+    }
+
+    public static void breakGateBlock(Location location) {
         getMobGate(location).breakGateBlock(location);
     }
 

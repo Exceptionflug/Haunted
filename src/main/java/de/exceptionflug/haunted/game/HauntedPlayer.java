@@ -2,7 +2,7 @@ package de.exceptionflug.haunted.game;
 
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.mojang.authlib.GameProfile;
-import de.exceptionflug.haunted.DebugUtil;
+import de.exceptionflug.haunted.EntityUtils;
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.npc.NPC;
@@ -208,7 +208,7 @@ public class HauntedPlayer extends GamePlayer {
 
     public void giveGold(int gold) {
         this.gold += gold;
-        sendMessage("§6+ " + gold + " Gold");
+        //sendMessage("§6+ " + gold + " Gold");
     }
 
     @Override
@@ -345,8 +345,11 @@ public class HauntedPlayer extends GamePlayer {
                 return;
             }
             mobGate.repairingPlayer(getPlayer());
-            mobGate.repairGate(1);
-            giveGold(10);
+            Location location = mobGate.repairGate(1);
+            if (location != null) {
+                giveGold(10);
+                EntityUtils.spawnPointsHologram(location, "§6+ 10 Gold");
+            }
             if (mobGate.repaired()) {
                 mobGate.repairingPlayer(null);
                 playSound(getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);

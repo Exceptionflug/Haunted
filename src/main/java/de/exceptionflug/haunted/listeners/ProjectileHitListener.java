@@ -1,11 +1,12 @@
 package de.exceptionflug.haunted.listeners;
 
 import com.google.inject.Inject;
-import de.exceptionflug.haunted.DebugUtil;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
-import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Entity;
@@ -35,6 +36,7 @@ public final class ProjectileHitListener implements Listener {
     public void onHit(ProjectileHitEvent event) {
         Projectile projectile = event.getEntity();
         if (event.getHitBlock() != null) {
+            if (event.getHitBlock().getType() == Material.BARRIER) return;
             spawnParticles(event.getHitBlock(), projectile);
         } else if (event.getHitEntity() != null) {
             if (event.getHitEntity() instanceof Mob mob) {

@@ -1,8 +1,11 @@
 package de.exceptionflug.haunted.monster;
 
 import de.exceptionflug.haunted.HauntedGameMode;
+import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import lombok.Getter;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
  * @author Exceptionflug
  */
 public abstract class Monster {
+
+    private static GameContext context = HauntedGameMode.getGameContext();
 
     @Getter
     private LivingEntity entity;
@@ -52,6 +57,19 @@ public abstract class Monster {
         return null;
     }
 
+    public net.minecraft.world.entity.Mob getNmsMob() {
+        if (getNmsEntity() instanceof net.minecraft.world.entity.Mob mob) return mob;
+        return null;
+    }
+
+    public boolean canBreakGate() {
+        return false;
+    }
+
+    protected Goal getPlayerGoal() {
+        return new NearestAttackableTargetGoal<>(getNmsMob(), net.minecraft.world.entity.player.Player.class, false, p -> !context.player(p.getUUID()).isDead());
+    }
+
     public void updateTarget() {
         Mob mob = getMob();
         if (mob == null) return;
@@ -63,8 +81,12 @@ public abstract class Monster {
         }
     }
 
+    private List<Player> getAlivePlayers() {
+        return HauntedGameMode.getGameContext().alivePlayers().stream().map(GamePlayer::getPlayer).collect(Collectors.toList());
+    }
+
     public Player getNearestPlayer() {
-        List<Player> players = HauntedGameMode.getGameContext().alivePlayers().stream().map(GamePlayer::getPlayer).collect(Collectors.toList());
+        List<Player> players = getAlivePlayers();
         if (players.size() == 1) return players.get(0);
         Location loc = entity.getLocation();
         double distance = 0;
