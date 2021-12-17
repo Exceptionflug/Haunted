@@ -1,10 +1,13 @@
 package de.exceptionflug.haunted;
 
 import de.exceptionflug.projectvenom.game.GameContext;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.v1_18_R1.util.CraftChatMessage;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -25,11 +28,15 @@ public class EntityUtils {
     }
 
     public static void spawnPointsHologram(Location location, String text) {
-        ArmorStand armorStand = location.getWorld().spawn(location.clone().add(0, 0.5, 0), ArmorStand.class);
-        armorStand.setMarker(true);
-        armorStand.setInvisible(true);
-        armorStand.setCustomName(text);
-        armorStand.setCustomNameVisible(true);
+        ServerLevel level =((CraftWorld) location.getWorld()).getHandle();
+        ArmorStand nmsArmorStand = new ArmorStand(net.minecraft.world.entity.EntityType.ARMOR_STAND , level);
+        nmsArmorStand.setMarker(true);
+        nmsArmorStand.setInvisible(true);
+        nmsArmorStand.setCustomName(CraftChatMessage.fromStringOrNull(text));
+        nmsArmorStand.setCustomNameVisible(true);
+        nmsArmorStand.setPos(location.getX(), location.getY(), location.getZ());
+        level.addFreshEntity(nmsArmorStand, CreatureSpawnEvent.SpawnReason.CUSTOM);
+        CraftArmorStand armorStand = (CraftArmorStand) nmsArmorStand.getBukkitEntity();
         new Runnable() {
             private final BukkitTask task = Bukkit.getScheduler().runTaskTimer(context.plugin(), this, 0, 1);
             private int ticks = 0;
