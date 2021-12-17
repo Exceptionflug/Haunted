@@ -85,6 +85,10 @@ public final class MobGate {
         }
     }
 
+    public Location getFirstGateBlock() {
+        return gateBlocks.get(0).location;
+    }
+
     public Location getDamageableGateBlock() {
         List<MobGateBlock> unbrokenBlocks = gateBlocks.stream().filter(mobGateBlock -> !mobGateBlock.broken).collect(Collectors.toList());
         return unbrokenBlocks.get(ThreadLocalRandom.current().nextInt(0, unbrokenBlocks.size())).location;

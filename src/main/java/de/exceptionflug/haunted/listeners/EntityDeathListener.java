@@ -1,7 +1,10 @@
 package de.exceptionflug.haunted.listeners;
 
+import com.google.inject.Inject;
+import de.exceptionflug.haunted.monster.Monster;
+import de.exceptionflug.haunted.phases.HauntedIngamePhase;
+import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
-import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -9,13 +12,19 @@ import org.bukkit.event.entity.EntityDeathEvent;
 @Component
 public class EntityDeathListener implements Listener {
 
+    private final GameContext context;
+
+    @Inject
+    public EntityDeathListener(GameContext gameContext) {
+        this.context = gameContext;
+    }
+
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
-        Entity entity = event.getEntity();
-        entity.getPassengers().forEach(Entity::remove);
-        while (entity.getVehicle() != null) {
-            entity = entity.getVehicle();
-            entity.remove();
+        HauntedIngamePhase phase = context.phase();
+        Monster monster = phase.wave().monsterByUniqueId(event.getEntity().getUniqueId());
+        if (monster != null) {
+            monster.handleDeath();
         }
     }
 }

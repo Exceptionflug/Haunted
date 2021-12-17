@@ -13,6 +13,8 @@ import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.EnumSet;
+
 public class SelfExplodeGoal extends Goal {
 
     private final Monster monster;
@@ -25,11 +27,14 @@ public class SelfExplodeGoal extends Goal {
         this.monster = monster;
         this.mob = (Mob) monster.getNmsEntity();
         this.maxFuseTime = fuseTime;
+        this.setFlags(EnumSet.of(Flag.MOVE));
     }
 
     public void start() {
+        System.out.println("start self explode SB " + mob);
         this.mob.getNavigation().stop();
         this.target = this.mob.getTarget();
+        System.out.println("start self explode EB " + mob);
     }
 
     public boolean canUse() {

@@ -43,7 +43,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
     private int tryFindBlockFails = 0;
     private void failedTryFindBlock() {
         if (++tryFindBlockFails > 1) {
-            if (wave.monsterByEntityId(mob.getId()) instanceof GateMonster monster) {
+            if (wave.monsterByUniqueId(mob.getUUID()) instanceof GateMonster monster) {
                 Bukkit.getScheduler().runTask(wave.context().plugin(), monster::removeAttackGateGoal);
             }
         }

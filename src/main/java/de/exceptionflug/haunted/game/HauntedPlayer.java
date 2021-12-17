@@ -54,6 +54,7 @@ public class HauntedPlayer extends GamePlayer {
     private static final SpigotConfig SCOREBOARD_CONFIG = ConfigFactory.create(new File("plugins/Haunted/scoreboard.yml"), SpigotConfig.class);
     private LocalizedConfigBoard scoreboard;
     private Objective goldObjective;
+    private Objective healthObjective;
     private Location deathLocation;
     private int reviveTicks = 60;
     private int respawnTimer = 30;
@@ -83,6 +84,9 @@ public class HauntedPlayer extends GamePlayer {
         scoreboard = new LocalizedConfigBoard(SCOREBOARD_CONFIG);
         goldObjective = scoreboard.getScoreboard().registerNewObjective("gold", "dummy");
         goldObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+        healthObjective = scoreboard.getScoreboard().registerNewObjective("health", "health");
+        healthObjective.setDisplayName("§c❤");
+        healthObjective.setDisplaySlot(DisplaySlot.BELOW_NAME);
         scoreboard.format("%gold%", abstractBoardHolder -> Integer.toString(gold));
         scoreboard.format("%kills%", abstractBoardHolder -> Integer.toString(kills));
         scoreboard.format("%section%", abstractBoardHolder -> {
@@ -156,7 +160,7 @@ public class HauntedPlayer extends GamePlayer {
 
             @Override
             public void run() {
-                timer ++;
+                timer++;
                 if (!revivable) {
                     beeingRevived = false;
                     cancel();
@@ -167,7 +171,7 @@ public class HauntedPlayer extends GamePlayer {
                     cancel();
                     return;
                 }
-                player.sendTitle("§8["+buildProgressbar(40, timer / (float) reviveTicks, "§a")+"§8]", "§7Halte die Taste gedrückt", 0, 6, 0);
+                player.sendTitle("§8[" + buildProgressbar(40, timer / (float) reviveTicks, "§a") + "§8]", "§7Halte die Taste gedrückt", 0, 6, 0);
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDER_EYE_DEATH, 1, (timer / (float) (reviveTicks / 1.5)) + 0.5F);
                 if (timer == reviveTicks) {
                     cancel();
@@ -301,7 +305,7 @@ public class HauntedPlayer extends GamePlayer {
         checkRepairing();
         updateTabScores();
         if (dead && revivable) {
-            respawnTimer --;
+            respawnTimer--;
             setLevel(respawnTimer);
             String color = respawnTimer < 10 ? "§c" : "§e";
             secondsLine.setText(color + respawnTimer + "s");
@@ -328,7 +332,7 @@ public class HauntedPlayer extends GamePlayer {
         MobGate mobGate = hauntedMap.mobGateByRepairZone(getLocation());
         if (mobGate != null && isSneaking() && !spectator()) {
             if (context().<HauntedIngamePhase>phase().wave() != null) {
-                for (Monster monster : context().<HauntedIngamePhase>phase().wave().entities()) {
+                for (Monster monster : context().<HauntedIngamePhase>phase().wave().entities().values()) {
                     LivingEntity entity = monster.getEntity();
                     if (!entity.isDead() && entity.getLocation().distance(getLocation()) < 6) {
                         Message.send(this, context().messageConfiguration(), "Messages.monstersNearby", "§cEs sind Monster in der Nähe.");
@@ -348,7 +352,7 @@ public class HauntedPlayer extends GamePlayer {
             Location location = mobGate.repairGate(1);
             if (location != null) {
                 giveGold(10);
-                EntityUtils.spawnPointsHologram(location, "§6+ 10 Gold");
+                EntityUtils.spawnPointsHologram(location.clone().add(0.5, 0, 0.5), "§6+ 10 Gold");
             }
             if (mobGate.repaired()) {
                 mobGate.repairingPlayer(null);

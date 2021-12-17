@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Date: 15.08.2021
@@ -36,19 +38,14 @@ public abstract class AbstractWave {
     public abstract int remainingMonsters();
     public abstract boolean done();
 
-    public abstract List<Monster> entities();
+    public abstract Map<UUID, Monster> entities();
 
     public Monster monsterByEntity(Entity entity) {
-        return monsterByEntityId(entity.getEntityId());
+        return monsterByUniqueId(entity.getUniqueId());
     }
 
-    public Monster monsterByEntityId(int id) {
-        for (Monster monster : entities()) {
-            if (monster.getEntity().getEntityId() == id) {
-                return monster;
-            }
-        }
-        return null;
+    public Monster monsterByUniqueId(UUID uuid) {
+        return entities().getOrDefault(uuid, null);
     }
 
     protected List<MobGate> optimalSpawnGates() {

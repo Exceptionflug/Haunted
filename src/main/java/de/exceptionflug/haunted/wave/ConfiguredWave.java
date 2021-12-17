@@ -2,21 +2,18 @@ package de.exceptionflug.haunted.wave;
 
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.monster.Monster;
-import de.exceptionflug.haunted.wave.config.Statement;
 import de.exceptionflug.haunted.wave.config.InstructionExecutor;
 import de.exceptionflug.haunted.wave.config.ParseException;
+import de.exceptionflug.haunted.wave.config.Statement;
 import de.exceptionflug.haunted.wave.config.WaveConfigurationParser;
 import de.exceptionflug.projectvenom.game.GameContext;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -30,7 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConfiguredWave extends AbstractWave {
 
     private final File file;
-    private final List<Monster> monsters = new ArrayList<>();
+    private final Map<UUID, Monster> monsters = new HashMap<>();
     private final List<Statement> statements = new ArrayList<>();
     private final ReentrantLock lock = new ReentrantLock();
     private InstructionExecutor instructionExecutor;
@@ -67,7 +64,7 @@ public class ConfiguredWave extends AbstractWave {
 
     @Override
     public void disable() {
-        monsters.forEach(Monster::despawn);
+        monsters.values().forEach(Monster::despawn);
         instructionExecutor.cancel();
     }
 
@@ -75,7 +72,7 @@ public class ConfiguredWave extends AbstractWave {
     public int remainingMonsters() {
         lock.lock();
         try {
-            return (int) monsters.stream().filter(Monster::alive).count();
+            return (int) monsters.values().stream().filter(Monster::alive).count();
         } finally {
             lock.unlock();
         }
@@ -87,10 +84,10 @@ public class ConfiguredWave extends AbstractWave {
     }
 
     @Override
-    public List<Monster> entities() {
+    public Map<UUID, Monster> entities() {
         lock.lock();
         try {
-            return List.copyOf(monsters);
+            return Map.copyOf(monsters);
         } finally {
             lock.unlock();
         }
@@ -102,7 +99,9 @@ public class ConfiguredWave extends AbstractWave {
 
     public void optimalSpawn(Monster monster) {
         List<MobGate> mobGates = optimalSpawnGates();
-        monster.spawn(mobGates.get(ThreadLocalRandom.current().nextInt(0, mobGates.size())).spawnLocation());
+        MobGate gate = mobGates.get(ThreadLocalRandom.current().nextInt(0, mobGates.size()));
+        monster.spawn(gate.spawnLocation());
+        monster.moveTo(gate.getFirstGateBlock());
     }
 
 }

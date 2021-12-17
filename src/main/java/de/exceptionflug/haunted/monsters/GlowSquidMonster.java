@@ -17,4 +17,9 @@ public class GlowSquidMonster extends ZombieMonster {
         squid.setCollidable(false);
         getZombie().addPassenger(squid);
     }
+
+    @Override
+    public void handleDeath() {
+        despawnAllLinkedEntities();
+    }
 }

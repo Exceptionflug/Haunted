@@ -6,13 +6,13 @@ import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
+import de.exceptionflug.projectvenom.game.phases.IngamePhase;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,20 +40,23 @@ public class EntityMoveListener implements Listener {
         Location to = event.getTo();
         if (from.getBlockX() == to.getBlockX() && from.getBlockY() == to.getBlockY() && from.getBlockZ() == to.getBlockZ())
             return;
-        // if is gate monster
-        if (set.contains(event.getEntity().getEntityId())) {
+        searchAndTargetGateBlock(event.getEntity());
+    }
+
+    private void searchAndTargetGateBlock(LivingEntity entity) {
+        if (!(context.phase() instanceof IngamePhase)) return;
+        if (set.contains(entity.getEntityId())) {
             //event.setCancelled(true);
         } else {
-            Monster monster = context.<HauntedIngamePhase>phase().wave().monsterByEntity(event.getEntity());
+            Monster monster = context.<HauntedIngamePhase>phase().wave().monsterByEntity(entity);
             if (monster != null && monster.canBreakGate()) {
-                Location loc = event.getTo();
+                Location loc = entity.getLocation();
                 Iterable<BlockPos> iterable = BlockPos.betweenClosed(Mth.floor(loc.getX() - 2.0D), Mth.floor(loc.getY() - 2.0D), Mth.floor(loc.getZ() - 2.0D), Mth.floor(loc.getX() + 2.0D), loc.getBlockY() + 1, Mth.floor(loc.getZ() + 2.0D));
 
                 for (BlockPos pos : iterable) {
                     if (isValidTarget(pos)) {
-                        set.add(event.getEntity().getEntityId());
-                        new GateBreakRunnable(event.getEntity(), pos);
-                        monster.getNmsEntity().moveTo(pos.getX(), pos.getY(), pos.getZ());
+                        set.add(entity.getEntityId());
+                        new GateBreakRunnable(monster, pos);
                         break;
                     }
                 }
@@ -68,17 +71,18 @@ public class EntityMoveListener implements Listener {
 
     private class GateBreakRunnable implements Runnable {
 
-        private BukkitTask task;
-
-        private Entity entity;
+        private final BukkitTask task;
+        private final LivingEntity entity;
+        private final Monster monster;
         private int breakTime = 0;
-        private BlockPos blockPos;
+        private final BlockPos blockPos;
 
         private int lastBreakProgress = 0;
-        private int blockBreakTime = 20;
+        private int blockBreakTime = 20; // some gate blocks might require more time to break
 
-        public GateBreakRunnable(LivingEntity entity, BlockPos pos) {
-            this.entity = entity;
+        public GateBreakRunnable(Monster monster, BlockPos pos) {
+            this.entity = monster.getEntity();
+            this.monster = monster;
             this.blockPos = pos;
             GateUtils.lockGateBlock(blockPos, entity.getEntityId());
             this.task = Bukkit.getScheduler().runTaskTimer(context.plugin(), this, 0, 1);
@@ -98,6 +102,8 @@ public class EntityMoveListener implements Listener {
                 GateUtils.unlockGateBlock(blockPos);
                 set.remove(entity.getEntityId());
                 stop();
+                monster.successfulInteraction();
+                searchAndTargetGateBlock(entity);
             } else {
                 // break animation
                 int i = (int)((float)breakTime / (float)blockBreakTime * 10.0F);

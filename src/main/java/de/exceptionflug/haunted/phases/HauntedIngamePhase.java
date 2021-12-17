@@ -128,7 +128,7 @@ public class HauntedIngamePhase extends IngamePhase {
                         }
                     } else {
                         if (System.currentTimeMillis() - waveTime > 120000) {
-                            wave.entities().forEach(monster -> {
+                            wave.entities().values().forEach(monster -> {
                                 if (!monster.getEntity().isDead() && !monster.getEntity().isGlowing()) {
                                     monster.getEntity().setGlowing(true);
                                 }

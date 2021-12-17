@@ -300,12 +300,12 @@ public class InstructionExecutor {
             try {
                 Monster monster = (Monster) wave.context().injector().getInstance(clazz);
                 if (statement.arguments()[1] instanceof Location location) {
-                    wave.monsters().add(monster);
                     monster.spawn(location);
+                    wave.monsters().put(monster.getUUID(), monster);
                 } else if (statement.arguments()[1] instanceof String string) {
                     if (string.equals("AUTOMATIC")) {
-                        wave.monsters().add(monster);
                         wave.optimalSpawn(monster);
+                        wave.monsters().put(monster.getUUID(), monster);
                     } else {
                         throw new RuntimeException("Unable to spawn monster "+clazz.getName()+": Unknown specifier " + string);
                     }

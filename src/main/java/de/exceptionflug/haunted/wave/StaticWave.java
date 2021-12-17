@@ -3,11 +3,10 @@ package de.exceptionflug.haunted.wave;
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.projectvenom.game.GameContext;
-import org.bukkit.Sound;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -17,9 +16,9 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class StaticWave extends AbstractWave {
 
-    private final List<Monster> monsters;
+    private final Map<UUID, Monster> monsters;
 
-    public StaticWave(GameContext context, int wave, List<Monster> monsters) {
+    public StaticWave(GameContext context, int wave, Map<UUID, Monster> monsters) {
         super(context, wave);
         this.monsters = monsters;
     }
@@ -27,24 +26,26 @@ public class StaticWave extends AbstractWave {
     @Override
     public void enable() {
         List<MobGate> mobGates = optimalSpawnGates();
-        for (Monster monster : monsters) {
-            monster.spawn(mobGates.get(ThreadLocalRandom.current().nextInt(0, mobGates.size())).spawnLocation());
+        for (Monster monster : monsters.values()) {
+            MobGate gate = mobGates.get(ThreadLocalRandom.current().nextInt(0, mobGates.size()));
+            monster.spawn(gate.spawnLocation());
+            monster.moveTo(gate.getFirstGateBlock());
         }
     }
 
     @Override
     public void disable() {
-        monsters.forEach(Monster::despawn);
+        monsters.values().forEach(Monster::despawn);
     }
 
     @Override
     public int remainingMonsters() {
-        return (int) monsters.stream().filter(Monster::alive).count();
+        return (int) monsters.values().stream().filter(Monster::alive).count();
     }
 
     @Override
-    public List<Monster> entities() {
-        return List.copyOf(monsters);
+    public Map<UUID, Monster> entities() {
+        return Map.copyOf(monsters);
     }
 
     @Override
