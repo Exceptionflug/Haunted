@@ -22,4 +22,9 @@ public class GlowSquidMonster extends ZombieMonster {
     public void handleDeath() {
         despawnAllLinkedEntities();
     }
+
+    @Override
+    public void setGlowing(boolean value) {
+        squid.setGlowing(value);
+    }
 }

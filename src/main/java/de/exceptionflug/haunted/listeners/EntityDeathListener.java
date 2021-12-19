@@ -22,7 +22,7 @@ public class EntityDeathListener implements Listener {
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
         HauntedIngamePhase phase = context.phase();
-        Monster monster = phase.wave().monsterByUniqueId(event.getEntity().getUniqueId());
+        Monster monster = phase.wave().monsterByEntity(event.getEntity());
         if (monster != null) {
             monster.handleDeath();
         }

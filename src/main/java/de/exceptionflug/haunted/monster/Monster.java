@@ -1,11 +1,11 @@
 package de.exceptionflug.haunted.monster;
 
 import de.exceptionflug.haunted.HauntedGameMode;
+import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import lombok.Getter;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
@@ -27,7 +27,13 @@ import java.util.stream.Collectors;
  */
 public abstract class Monster {
 
-    private static GameContext context = HauntedGameMode.getGameContext();
+    protected static GameContext getContext() {
+        return HauntedGameMode.getGameContext();
+    }
+
+    protected static HauntedIngamePhase getPhase() {
+        return getContext().phase();
+    }
 
     @Getter
     private LivingEntity entity;
@@ -84,7 +90,6 @@ public abstract class Monster {
     }
 
     public void updateTarget(boolean force) {
-        Bukkit.getOnlinePlayers().forEach(p -> p.sendMessage("updateTarget " + getEntity().getType() + " " + force));
         Mob mob = getMob();
         if (mob == null) return;
         Player target = force ? getNearestPlayer(p -> mob.getTarget() == null || p.getUniqueId().equals(mob.getTarget().getUniqueId())) : getNearestPlayer();
@@ -149,5 +154,9 @@ public abstract class Monster {
 
     public void successfulInteraction() {
         lastSuccessfulInteraction = System.currentTimeMillis();
+    }
+
+    public void setGlowing(boolean value) {
+        getEntity().setGlowing(value);
     }
 }
