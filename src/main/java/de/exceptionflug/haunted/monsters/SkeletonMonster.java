@@ -3,9 +3,12 @@ package de.exceptionflug.haunted.monsters;
 import de.exceptionflug.haunted.monster.GateMonster;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
 
-public class SkeletonMonster extends GateMonster {
+public class SkeletonMonster extends GateMonster implements RangedMonster {
 
     private Skeleton skeleton;
 
@@ -18,5 +21,20 @@ public class SkeletonMonster extends GateMonster {
         if (getNmsEntity() instanceof AbstractSkeleton abstractSkeleton) {
             abstractSkeleton.reassessWeaponGoal();
         }
+    }
+
+    @Override
+    public void performRangedAttack(LivingEntity target, float var4) {
+
+    }
+
+    @Override
+    public void performProjectileHit(Projectile projectile, LivingEntity target) {
+        spawnParticle(Particle.VILLAGER_HAPPY, 2);
+    }
+
+    @Override
+    public double getProjectileDamage(LivingEntity target) {
+        return 1;
     }
 }

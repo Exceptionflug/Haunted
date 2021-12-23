@@ -3,12 +3,13 @@ package de.exceptionflug.haunted.listeners;
 import com.google.inject.Inject;
 import de.exceptionflug.haunted.EntityUtils;
 import de.exceptionflug.haunted.game.HauntedPlayer;
+import de.exceptionflug.haunted.monster.Monster;
+import de.exceptionflug.haunted.monsters.ImmuneMonster;
+import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -58,6 +59,14 @@ public final class EntityDamageByEntityListener implements Listener {
                         shooter = hauntedPlayer;
                     }
                 }
+                Monster monster = gameContext.<HauntedIngamePhase>phase().wave().monsterByEntity(event.getEntity());
+                if (monster != null) {
+                    if (monster instanceof ImmuneMonster immuneEntity && immuneEntity.isImmuneTo(projectile)) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    if (event.getEntity().isInvulnerable()) monster.handleDamage(event.getDamage(), event.getDamager());
+                }
                 if (projectile.getPersistentDataContainer().has(Gun.DAMAGE_KEY, PersistentDataType.DOUBLE)) {
                     event.setDamage(EntityDamageEvent.DamageModifier.BASE, projectile.getPersistentDataContainer().get(Gun.DAMAGE_KEY, PersistentDataType.DOUBLE));
                 }
@@ -69,18 +78,6 @@ public final class EntityDamageByEntityListener implements Listener {
                 } else {
                     shooter.giveGold(5);
                     EntityUtils.spawnPointsHologram(event.getEntity().getLocation(), "§6+5");
-                }
-                Entity entity = event.getEntity();
-                if (entity.isInvulnerable()) {
-                    if (entity.getPassengers().size() > 0) {
-                        entity.getPassengers().forEach(e -> {
-                            if (!e.isInvulnerable() && e instanceof LivingEntity le) le.damage(event.getDamage(), event.getDamager());
-                        });
-                    }
-                    if (entity.getVehicle() != null) {
-                        Entity e = entity.getVehicle();
-                        if (!e.isInvulnerable() && e instanceof LivingEntity le) le.damage(event.getDamage(), event.getDamager());
-                    }
                 }
             }
         }

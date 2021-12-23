@@ -11,6 +11,7 @@ public class SlimeMonster extends Monster {
     @Override
     public void spawn(Location location) {
         slime = location.getWorld().spawn(location, Slime.class);
+        super.spawn(slime, location);
     }
 
     public void setSize(int size) {

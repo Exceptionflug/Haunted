@@ -10,5 +10,7 @@ public class PigMonster extends AnimalMonster {
     public void spawn(Location location) {
         pig = location.getWorld().spawn(location, Pig.class);
         super.spawn(pig, location);
+        setAttackDamage(1.5);
+        setMovementSpeed(.3);
     }
 }

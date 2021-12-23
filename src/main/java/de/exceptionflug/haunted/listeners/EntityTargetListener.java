@@ -49,6 +49,7 @@ public class EntityTargetListener implements Listener {
         if (event.getEntity() instanceof Player) entity = event.getDamager();
         if (event.getDamager() instanceof Player) entity = event.getEntity();
         if (entity != null) {
+            if (!context.phase().ingamePhase()) return;
             Monster monster = context.<HauntedIngamePhase>phase().wave().monsterByEntity(event.getEntity());
             if (monster != null) {
                 monster.successfulInteraction();

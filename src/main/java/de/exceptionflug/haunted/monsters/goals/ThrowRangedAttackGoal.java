@@ -1,10 +1,11 @@
 package de.exceptionflug.haunted.monsters.goals;
 
-import de.exceptionflug.haunted.monsters.ThrowerMonster;
+import de.exceptionflug.haunted.monsters.RangedMonster;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
+import org.bukkit.Bukkit;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -12,7 +13,7 @@ import java.util.EnumSet;
 public class ThrowRangedAttackGoal extends Goal {
 
     private final Mob mob;
-    private final ThrowerMonster monster;
+    private final RangedMonster monster;
     @Nullable
     private LivingEntity target;
     private int attackTime;
@@ -22,11 +23,11 @@ public class ThrowRangedAttackGoal extends Goal {
     private final float attackRadius;
     private final float attackRadiusSqr;
 
-    public ThrowRangedAttackGoal(Mob mob, ThrowerMonster monster) {
-        this(mob, monster, 1.0D, 10, 10.0F);
+    public ThrowRangedAttackGoal(Mob mob, RangedMonster monster) {
+        this(mob, monster, 1.0D, 40, 10.0F);
     }
 
-    public ThrowRangedAttackGoal(Mob mob, ThrowerMonster monster, double speedModifier, int attackInterval, float attackRadius) {
+    public ThrowRangedAttackGoal(Mob mob, RangedMonster monster, double speedModifier, int attackInterval, float attackRadius) {
         this.attackTime = -1;
         this.mob = mob;
         this.monster = monster;
@@ -84,7 +85,7 @@ public class ThrowRangedAttackGoal extends Goal {
 
             float var3 = (float) Math.sqrt(distance) / this.attackRadius;
             float var4 = Mth.clamp(var3, 0.1F, 1.0F);
-            monster.performRangedAttack(this.target, var4);
+            monster.performRangedAttack((org.bukkit.entity.LivingEntity) Bukkit.getEntity(target.getUUID()), var4);
             this.attackTime = Mth.floor(var3 * attackInterval);
         } else if (this.attackTime < 0) {
             this.attackTime = Mth.floor(Mth.lerp(Math.sqrt(distance) / (double) this.attackRadius, attackInterval, attackInterval));

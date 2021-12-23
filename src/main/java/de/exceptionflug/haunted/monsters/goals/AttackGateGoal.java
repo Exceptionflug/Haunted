@@ -11,7 +11,6 @@ import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import org.bukkit.Bukkit;
 
 public class AttackGateGoal extends MoveToBlockGoal {
 
@@ -44,7 +43,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
     private void failedTryFindBlock() {
         if (++tryFindBlockFails > 1) {
             if (wave.monsterByUniqueId(mob.getUUID()) instanceof GateMonster monster) {
-                Bukkit.getScheduler().runTask(wave.context().plugin(), monster::removeAttackGateGoal);
+                //Bukkit.getScheduler().runTask(wave.context().plugin(), monster::removeAttackGateGoal);
             }
         }
     }

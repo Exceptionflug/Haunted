@@ -15,6 +15,8 @@ public class ChickenJockeyTowerMonster extends AnimalMonster {
         chicken = location.getWorld().spawn(location, Chicken.class);
         super.spawn(chicken, location);
 
+        setAttackDamage(1);
+
         Entity top = chicken;
         for (int i = 0; i < 5; i++) {
             Monster monster = getContext().injector().getInstance(BabyZombieMonster.class);
@@ -33,7 +35,14 @@ public class ChickenJockeyTowerMonster extends AnimalMonster {
     }
 
     private void ejectAll(Entity entity) {
+        System.out.println("ejectALl for " + entity.getType());
         entity.getPassengers().forEach(this::ejectAll);
-        entity.eject();
+        entity.getPassengers().forEach(entity::removePassenger);
+    }
+
+    @Override
+    public void handleDamage(double damage, Entity damager) {
+        super.handleDamage(damage, damager);
+        ejectAll(chicken);
     }
 }
