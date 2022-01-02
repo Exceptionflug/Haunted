@@ -7,7 +7,10 @@ LOOP 10 {
 
 WAIT CLEARED
 
-SPAWN de.exceptionflug.haunted.monster.boss.TestMagicBoss [-0.5,30.5,35.5]
+SPAWN de.exceptionflug.haunted.monster.boss.TestMagicBoss [-0.5,30.5,35.5] {
+    ATTR DAMAGE 2
+    ATTR SIZE 3
+}
 
 CINEMATIC 60 {
     VERTEX [14.0,23.0,54.0]

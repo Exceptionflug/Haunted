@@ -299,6 +299,14 @@ public class InstructionExecutor {
             wave.lock().lock();
             try {
                 Monster monster = (Monster) wave.context().injector().getInstance(clazz);
+                if (statement.arguments()[2] instanceof WaveConfigurationParser.CodeBlock block) {
+                    for (Statement stm : block.statements()) {
+                        if (stm.type() == Statement.InstructionType.ATTR) {
+                            String specifier = (String) stm.arguments()[0];
+                            monster.getAttributes().put(specifier, stm.arguments()[1]);
+                        }
+                    }
+                }
                 if (statement.arguments()[1] instanceof Location location) {
                     monster.spawn(location);
                     wave.monsters().put(monster.getUUID(), monster);

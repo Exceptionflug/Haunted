@@ -33,7 +33,7 @@ public class Statement {
     @Accessors(fluent = true)
     enum InstructionType {
 
-        SPAWN(null, new Argument(Structure.JAVA_CLASS), new Argument(Structure.LOCATION, Structure.SPECIFIER)),
+        SPAWN(null, new Argument(Structure.JAVA_CLASS), new Argument(Structure.LOCATION, Structure.SPECIFIER), new Argument(Structure.BLOCK)),
         TELEPORT(null, new Argument(Structure.LOCATION)),
         WAIT(null, new Argument(Structure.INTEGER, Structure.SPECIFIER, Structure.STATEMENT)),
         LOOP(null, new Argument(Structure.INTEGER, Structure.STATEMENT), new Argument(Structure.BLOCK)),
@@ -46,6 +46,7 @@ public class Statement {
         DEFINE(null, new Argument(Structure.SPECIFIER), new Argument(Structure.DYNAMIC, Structure.STATEMENT)),
         IF(null, new Argument(Structure.BOOLEAN, Structure.STATEMENT), new Argument(Structure.BLOCK)),
         ECHO(null, new Argument(Structure.values())),
+        ATTR(null, new Argument(Structure.SPECIFIER), new Argument(Structure.values())),
 
         // Returning things
         RANDOM_INT(Structure.INTEGER, new Argument(Structure.INTEGER, Structure.STATEMENT), new Argument(Structure.INTEGER, Structure.STATEMENT)),
