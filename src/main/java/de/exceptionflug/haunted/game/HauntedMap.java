@@ -2,7 +2,6 @@ package de.exceptionflug.haunted.game;
 
 import de.exceptionflug.haunted.armor.ArmorShop;
 import de.exceptionflug.haunted.armor.ArmorType;
-import de.exceptionflug.haunted.armor.MultipleArmorShop;
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.perk.PerkShop;
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * Date: 10.08.2021
@@ -86,7 +84,7 @@ public class HauntedMap extends AbstractGameMap {
                 int price = config().getOrSetDefault("shops." + key + ".price", 100);
                 shop = new GunShop(id, gunType, price, price, location, buttonLocation);
             } else if (type.equals("PERK")) {
-                PerkType perkType = PerkType.valueOf(config().getOrSetDefault("shops." + key + ".perkType", "HEAL");
+                PerkType perkType = PerkType.valueOf(config().getOrSetDefault("shops." + key + ".perkType", "HEAL"));
                 List<Integer> prices = new ArrayList<>();
                 for (String level : config().getKeys("shops." + key + ".prices")) {
                     prices.add(config().getOrSetDefault("shops." + key + ".prices." + level, 100));
@@ -99,10 +97,11 @@ public class HauntedMap extends AbstractGameMap {
                     int price = config().getOrSetDefault("shops." + key + ".price", 100);
                     shop = new ArmorShop(id, armorType, price, location, buttonLocation);
                 } else if (variant.equals("MULTIPLE")) {
-                    double priceMultiplier = config().getOrSetDefault("shops." + key + ".priceMultiplier", 1.5);
-                    List<List<String>> armorTypes = config().getOrSetDefault("shops." + key + ".armorTypes", List.of(List.of("LEATHER")));
-                    shop = new MultipleArmorShop(id, armorTypes.stream().map(l -> l.stream().map(ArmorType::valueOf).collect(Collectors.toList())).collect(Collectors.toList()),
-                            price, priceMultiplier, location, buttonLocation);
+                    //double priceMultiplier = config().getOrSetDefault("shops." + key + ".priceMultiplier", 1.5);
+                    //List<List<String>> armorTypes = config().getOrSetDefault("shops." + key + ".armorTypes", List.of(List.of("LEATHER")));
+                    //shop = new MultipleArmorShop(id, armorTypes.stream().map(l -> l.stream().map(ArmorType::valueOf).collect(Collectors.toList())).collect(Collectors.toList()),
+                    //        price, priceMultiplier, location, buttonLocation);
+                    shop = null;
                 } else {
                     Bukkit.getLogger().warning("Unable to load ARMOR shop of variant " + variant);
                     continue;

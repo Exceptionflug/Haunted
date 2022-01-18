@@ -51,6 +51,9 @@ import java.util.function.Consumer;
 @Accessors(fluent = true)
 public class HauntedPlayer extends GamePlayer {
 
+    private static final ItemStack PLACEHOLDER_GUN = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setTitle("§8").build();
+    private static final ItemStack PLACEHOLDER_MAGIC = new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS_PANE).setTitle("§8").build();
+    private static final ItemStack PLACEHOLDER_PERK = new ItemBuilder(Material.MAGENTA_STAINED_GLASS_PANE).setTitle("§8").build();
     private static final ItemStack PLACEHOLDER = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setTitle("§8").build();
     private static final ItemStack FORBIDDEN = new ItemBuilder(Material.BARRIER).setTitle("§cNicht freigeschaltet").build();
     private static final SpigotConfig SCOREBOARD_CONFIG = ConfigFactory.create(new File("plugins/Haunted/scoreboard.yml"), SpigotConfig.class);
@@ -224,30 +227,26 @@ public class HauntedPlayer extends GamePlayer {
     @Override
     public void giveIngameItems() {
         if (primaryWeapon != null) {
-            primaryWeapon.give(this, 0);
+            primaryWeapon.give(this, 1);
         }
         if (secondaryWeapon != null) {
-            secondaryWeapon.give(this, 1);
+            secondaryWeapon.give(this, 2);
+        } else getInventory().setItem(2, PLACEHOLDER_GUN);
+        if (weaponSlots == 3) {
+            if (thirdWeapon != null) {
+                thirdWeapon.give(this, 3);
+            } else getInventory().setItem(3, PLACEHOLDER_GUN);
         }
-        if (thirdWeapon != null && weaponSlots == 3) {
-            thirdWeapon.give(this, 2);
-        } else if (weaponSlots < 3) {
-            getInventory().setItem(2, FORBIDDEN);
-        }
-        getInventory().setItem(3, PLACEHOLDER);
-        getInventory().setItem(4, PLACEHOLDER);
-        getInventory().setItem(5, PLACEHOLDER);
+        getInventory().setItem(4, PLACEHOLDER_MAGIC);
         if (primaryPerk() != null) {
-            primaryPerk.give(this, 8);
-        }
+            primaryPerk.give(this, 6);
+        } else getInventory().setItem(6, PLACEHOLDER_PERK);
         if (secondaryPerk() != null) {
             secondaryPerk.give(this, 7);
-        }
+        } else getInventory().setItem(7, PLACEHOLDER_PERK);
         if (thirdPerk() != null && perkSlots == 3) {
-            thirdPerk.give(this, 6);
-        } else if (perkSlots < 3) {
-            getInventory().setItem(6, FORBIDDEN);
-        }
+            thirdPerk.give(this, 8);
+        } else getInventory().setItem(8, PLACEHOLDER_PERK);
         Consumer<Armor> armorConsumer = armor -> {
             if (armor != null) armor.giveArmor(getInventory());
         };
@@ -309,6 +308,34 @@ public class HauntedPlayer extends GamePlayer {
     public void thirdPerk(Perk perk) {
         if (!spectator()) {
             thirdPerk = perk;
+        }
+        giveIngameItems();
+    }
+
+    public void helmetArmor(Armor armor) {
+        if (!spectator()) {
+            helmetArmor = armor;
+        }
+        giveIngameItems();
+    }
+
+    public void chestplateArmor(Armor armor) {
+        if (!spectator()) {
+            chestplateArmor = armor;
+        }
+        giveIngameItems();
+    }
+
+    public void leggingsArmor(Armor armor) {
+        if (!spectator()) {
+            leggingsArmor = armor;
+        }
+        giveIngameItems();
+    }
+
+    public void bootsArmor(Armor armor) {
+        if (!spectator()) {
+            bootsArmor = armor;
         }
         giveIngameItems();
     }

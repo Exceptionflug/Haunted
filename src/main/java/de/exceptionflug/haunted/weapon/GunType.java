@@ -18,7 +18,7 @@ import org.bukkit.entity.*;
 public enum GunType {
 
     SHOTGUN("Schrotflinte", 500, 1, 0, 2, 5, 5, 500, 0.5, 40, 0.05, 4, Egg.class, Material.STONE_HOE, Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1, Sound.BLOCK_PISTON_EXTEND, 2),
-    PISTOL("Pistole", 500, 1, 0, 4, 1, 16, 300, 0.1, 30, 0.02, 6, Snowball.class, Material.STICK, Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 2, Sound.BLOCK_PISTON_EXTEND, 2),
+    PISTOL("Pistole", 500, 1, 0, 4, 1, 16, 300, 0.1, 30, 0.02, 6, Snowball.class, Material.WOODEN_HOE, Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 2, Sound.BLOCK_PISTON_EXTEND, 2),
     P90("P90", 500, 3, 100, 4, 1, 18, 0, 0.1, 40, 0.02, 6, Snowball.class, Material.BLAZE_ROD, Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 2, Sound.BLOCK_PISTON_EXTEND, 2),
     POSEIDONS_REVENGE("§5Poseidon's Rache", 300, 1, 0, 3, 3, 12, 0, 0.1, 60, 0.05, 8, Trident.class, Material.GOLDEN_SHOVEL, Sound.ITEM_TRIDENT_THROW, 2, Sound.ITEM_TRIDENT_RETURN, 2),
     ROCKET_LAUNCHER("Raketenwerfer", 300, 1, 0, 2, 1, 5, 1000, 0.5, 60, 0.05, 12, WitherSkull.class, Material.GOLDEN_HOE, Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 2, Sound.BLOCK_PISTON_EXTEND, 1),
