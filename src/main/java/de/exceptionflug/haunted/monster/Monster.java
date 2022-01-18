@@ -15,7 +15,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -37,6 +39,9 @@ public abstract class Monster {
 
     @Getter
     private LivingEntity entity;
+
+    @Getter
+    private final Map<String, Object> attributes = new HashMap<>();
 
     public UUID getUUID() {
         return entity.getUniqueId();
