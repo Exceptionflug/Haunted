@@ -1,5 +1,6 @@
 package de.exceptionflug.haunted.weapon;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Material;
@@ -12,6 +13,7 @@ import org.bukkit.entity.*;
  * @author Exceptionflug
  */
 @Getter
+@AllArgsConstructor
 @Accessors(fluent = true)
 public enum GunType {
 
@@ -42,26 +44,5 @@ public enum GunType {
     private final float shootSoundPitch;
     private final Sound reloadSound;
     private final float reloadSoundPitch;
-
-    GunType(String displayName, int maxAmmunition, int volley, int volleyDelay, double speed, int bulletsPerShot, int rounds, int fireDelay, double recoil, int reloadDelay, double spread, double damage, Class<? extends Projectile> projectileType, Material itemType, Sound shootSound, float shootSoundPitch, Sound reloadSound, float reloadSoundPitch) {
-        this.displayName = displayName;
-        this.maxAmmunition = maxAmmunition;
-        this.volley = volley;
-        this.volleyDelay = volleyDelay;
-        this.speed = speed;
-        this.bulletsPerShot = bulletsPerShot;
-        this.rounds = rounds;
-        this.fireDelay = fireDelay;
-        this.recoil = recoil;
-        this.reloadDelay = reloadDelay;
-        this.spread = spread;
-        this.damage = damage;
-        this.projectileType = projectileType;
-        this.itemType = itemType;
-        this.shootSound = shootSound;
-        this.shootSoundPitch = shootSoundPitch;
-        this.reloadSound = reloadSound;
-        this.reloadSoundPitch = reloadSoundPitch;
-    }
 
 }

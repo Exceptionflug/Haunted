@@ -3,6 +3,7 @@ package de.exceptionflug.haunted.game;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.mojang.authlib.GameProfile;
 import de.exceptionflug.haunted.EntityUtils;
+import de.exceptionflug.haunted.armor.Armor;
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.npc.NPC;
@@ -38,6 +39,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 
 /**
@@ -75,6 +77,10 @@ public class HauntedPlayer extends GamePlayer {
     private Perk primaryPerk;
     private Perk secondaryPerk;
     private Perk thirdPerk;
+    private Armor helmetArmor;
+    private Armor chestplateArmor;
+    private Armor leggingsArmor;
+    private Armor bootsArmor;
     private Hologram sneakHologram;
     private TextHologramLine secondsLine;
     private NPC body;
@@ -242,6 +248,13 @@ public class HauntedPlayer extends GamePlayer {
         } else if (perkSlots < 3) {
             getInventory().setItem(6, FORBIDDEN);
         }
+        Consumer<Armor> armorConsumer = armor -> {
+            if (armor != null) armor.giveArmor(getInventory());
+        };
+        armorConsumer.accept(helmetArmor());
+        armorConsumer.accept(chestplateArmor());
+        armorConsumer.accept(leggingsArmor());
+        armorConsumer.accept(bootsArmor());
     }
 
     @Override

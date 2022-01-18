@@ -1,7 +1,12 @@
 package de.exceptionflug.haunted.game;
 
+import de.exceptionflug.haunted.armor.ArmorShop;
+import de.exceptionflug.haunted.armor.ArmorType;
+import de.exceptionflug.haunted.armor.MultipleArmorShop;
 import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.game.gate.SectionGate;
+import de.exceptionflug.haunted.perk.PerkShop;
+import de.exceptionflug.haunted.perk.PerkType;
 import de.exceptionflug.haunted.section.MapSection;
 import de.exceptionflug.haunted.shop.Shop;
 import de.exceptionflug.haunted.switches.ElectricitySwitch;
@@ -24,6 +29,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Date: 10.08.2021
@@ -74,11 +80,33 @@ public class HauntedMap extends AbstractGameMap {
             Location location = config().getLocation("shops." + key + ".location");
             Location buttonLocation = config().getLocation("shops." + key + ".buttonLocation");
             String type = config().getOrSetDefault("shops." + key + ".type", "GUN");
-            int price = config().getOrSetDefault("shops." + key + ".price", 100);
             Shop shop;
             if (type.equals("GUN")) {
-                shop = new GunShop(id, GunType.valueOf(config().getOrSetDefault("shops." + key + ".gunType", "P90")),
-                        price, price, location, buttonLocation);
+                GunType gunType = GunType.valueOf(config().getOrSetDefault("shops." + key + ".gunType", "P90"));
+                int price = config().getOrSetDefault("shops." + key + ".price", 100);
+                shop = new GunShop(id, gunType, price, price, location, buttonLocation);
+            } else if (type.equals("PERK")) {
+                PerkType perkType = PerkType.valueOf(config().getOrSetDefault("shops." + key + ".perkType", "HEAL");
+                List<Integer> prices = new ArrayList<>();
+                for (String level : config().getKeys("shops." + key + ".prices")) {
+                    prices.add(config().getOrSetDefault("shops." + key + ".prices." + level, 100));
+                }
+                shop = new PerkShop(id, perkType, prices, location, buttonLocation);
+            } else if (type.equals("ARMOR")) {
+                String variant = config().getOrSetDefault("shops." + key + ".variant", "SINGLE");
+                if (variant.equals("SINGLE")) {
+                    ArmorType armorType = ArmorType.valueOf(config().getOrSetDefault("shops." + key + ".armorType", "LEATHER"));
+                    int price = config().getOrSetDefault("shops." + key + ".price", 100);
+                    shop = new ArmorShop(id, armorType, price, location, buttonLocation);
+                } else if (variant.equals("MULTIPLE")) {
+                    double priceMultiplier = config().getOrSetDefault("shops." + key + ".priceMultiplier", 1.5);
+                    List<List<String>> armorTypes = config().getOrSetDefault("shops." + key + ".armorTypes", List.of(List.of("LEATHER")));
+                    shop = new MultipleArmorShop(id, armorTypes.stream().map(l -> l.stream().map(ArmorType::valueOf).collect(Collectors.toList())).collect(Collectors.toList()),
+                            price, priceMultiplier, location, buttonLocation);
+                } else {
+                    Bukkit.getLogger().warning("Unable to load ARMOR shop of variant " + variant);
+                    continue;
+                }
             } else {
                 Bukkit.getLogger().warning("Unable to load shop of type " + type);
                 continue;
