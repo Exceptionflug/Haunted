@@ -44,18 +44,20 @@ public class ArmorShop implements Shop {
             Message.send(player, player.context().messageConfiguration(), "Messages.canNotAfford", "§cDu kannst dir das nicht leisten!");
             return false;
         }
-        if (player.helmetArmor().getType().ordinal() > armorType.ordinal()) {
-            Message.send(player, player.context().messageConfiguration(), "Messages.armor.hasStronger", "§cDu hast bereits bessere Rüstung!");
-            return false;
-        }
-        if (player.helmetArmor().getType().ordinal() == armorType.ordinal()) {
-            Message.send(player, player.context().messageConfiguration(), "Messages.armor.hasSame", "§cDu hast bereits diese Rüstung!");
-            return false;
+        if (player.helmetArmor() != null) {
+            if (player.helmetArmor().getType().ordinal() > armorType.ordinal()) {
+                Message.send(player, player.context().messageConfiguration(), "Messages.armor.hasStronger", "§cDu hast bereits bessere Rüstung!");
+                return false;
+            }
+            if (player.helmetArmor().getType().ordinal() == armorType.ordinal()) {
+                Message.send(player, player.context().messageConfiguration(), "Messages.armor.hasSame", "§cDu hast bereits diese Rüstung!");
+                return false;
+            }
         }
         player.helmetArmor(new Armor(armorType, EquipmentSlot.HEAD));
         player.chestplateArmor(new Armor(armorType, EquipmentSlot.CHEST));
-        player.leggingsArmor(new Armor(armorType, EquipmentSlot.HEAD));
-        player.bootsArmor(new Armor(armorType, EquipmentSlot.HEAD));
+        player.leggingsArmor(new Armor(armorType, EquipmentSlot.LEGS));
+        player.bootsArmor(new Armor(armorType, EquipmentSlot.FEET));
 
         player.gold(player.gold() - price);
         return true;
