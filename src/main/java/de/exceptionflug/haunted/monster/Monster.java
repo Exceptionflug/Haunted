@@ -9,11 +9,13 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +41,8 @@ public abstract class Monster {
 
     @Getter
     private LivingEntity entity;
+    @Getter
+    private double attackDamage;
 
     @Getter
     private final Map<String, Object> attributes = new HashMap<>();
@@ -51,6 +55,7 @@ public abstract class Monster {
 
     public void spawn(LivingEntity entity, Location location) {
         this.entity = entity;
+        updateAttackDamageFromEntity();
         updateTarget();
     }
 
@@ -164,4 +169,43 @@ public abstract class Monster {
     public void setGlowing(boolean value) {
         getEntity().setGlowing(value);
     }
+
+    private void updateAttackDamageFromEntity() {
+        @Nullable AttributeInstance attribute = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        if (attribute == null) this.attackDamage = 0;
+        else this.attackDamage = attribute.getValue();
+    }
+
+    public void setAttribute(Attribute attributeType, double value) {
+        AttributeInstance attribute = entity.getAttribute(attributeType);
+        if (attribute == null) {
+            entity.registerAttribute(attributeType);
+            setAttribute(attributeType, value);
+        } else attribute.setBaseValue(value);
+    }
+
+    public void setAttackDamage(double attackDamage) {
+        setAttribute(Attribute.GENERIC_ATTACK_DAMAGE, attackDamage);
+    }
+
+    public void setMovementSpeed(double speed) {
+        setAttribute(Attribute.GENERIC_MOVEMENT_SPEED, speed);
+    }
+
+    /**
+     * Just used to pass on damage, used for visual entity combinations
+     * @param damage
+     * @param damager
+     */
+    public void handleDamage(double damage, Entity damager) {
+        if (entity.getPassengers().size() > 0) {
+            entity.getPassengers().forEach(e -> {
+                if (!e.isInvulnerable() && e instanceof LivingEntity le) le.damage(damage, damager);
+            });
+        }
+        if (entity.getVehicle() != null) {
+            Entity e = entity.getVehicle();
+            if (!e.isInvulnerable() && e instanceof LivingEntity le) le.damage(damage, damager);
+        }
+    };
 }

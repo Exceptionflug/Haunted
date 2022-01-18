@@ -51,9 +51,10 @@ public class EntityMoveListener implements Listener {
             Monster monster = context.<HauntedIngamePhase>phase().wave().monsterByEntity(entity);
             if (monster != null && monster.canBreakGate()) {
                 Location loc = entity.getLocation();
-                Iterable<BlockPos> iterable = BlockPos.betweenClosed(Mth.floor(loc.getX() - 2.0D), Mth.floor(loc.getY() - 2.0D), Mth.floor(loc.getZ() - 2.0D), Mth.floor(loc.getX() + 2.0D), loc.getBlockY() + 1, Mth.floor(loc.getZ() + 2.0D));
+                Iterable<BlockPos> iterable = BlockPos.betweenClosed(Mth.floor(loc.getX() - 2.0D), Mth.floor(loc.getY() - 2.0D), Mth.floor(loc.getZ() - 2.0D), Mth.floor(loc.getX() + 2.0D), loc.getBlockY() + 2, Mth.floor(loc.getZ() + 2.0D));
 
                 for (BlockPos pos : iterable) {
+                    if (pos.getY() == loc.getBlockY()+2 && !GateUtils.isGateBlock(pos.getX(), pos.getY()-1, pos.getZ())) continue;
                     if (isValidTarget(pos)) {
                         set.add(entity.getEntityId());
                         new GateBreakRunnable(monster, pos);

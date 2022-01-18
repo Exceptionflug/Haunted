@@ -1,6 +1,8 @@
 package de.exceptionflug.haunted.listeners;
 
 import com.google.inject.Inject;
+import de.exceptionflug.haunted.monsters.RangedMonster;
+import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.aop.Component;
@@ -8,10 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
@@ -46,6 +45,11 @@ public final class ProjectileHitListener implements Listener {
                 }
             }
             spawnParticles(event.getHitEntity(), projectile);
+        }
+        if (projectile.getShooter() != null && context.<HauntedIngamePhase>phase().wave().monsterByEntity((Entity) projectile.getShooter()) instanceof RangedMonster thrower && event.getHitEntity() instanceof LivingEntity livingEntity) {
+            thrower.performProjectileHit(projectile, livingEntity);
+            double damage = thrower.getProjectileDamage(livingEntity);
+            if (damage > 0) livingEntity.damage(damage);
         }
     }
 

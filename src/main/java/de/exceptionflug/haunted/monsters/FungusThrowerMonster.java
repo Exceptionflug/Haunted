@@ -1,17 +1,19 @@
 package de.exceptionflug.haunted.monsters;
 
 import de.exceptionflug.haunted.EntityUtils;
+import de.exceptionflug.haunted.monster.GateMonster;
 import de.exceptionflug.haunted.monsters.goals.ThrowRangedAttackGoal;
-import net.minecraft.world.entity.LivingEntity;
+import de.exceptionflug.mccommons.inventories.spigot.utils.ItemUtils;
 import net.minecraft.world.entity.PathfinderMob;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.Snowball;
+import org.bukkit.Particle;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 
-public class FungusThrowerMonster extends ThrowerMonster {
+public class FungusThrowerMonster extends GateMonster implements RangedMonster {
 
     private Piglin piglin;
 
@@ -24,7 +26,7 @@ public class FungusThrowerMonster extends ThrowerMonster {
         }
         piglin.setImmuneToZombification(true);
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-        //ItemUtils.setSkullTexture(head, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWIyMDY0MzkwZTc5ZDllNTRjY2I0MThiMDczMzE1M2NmOTkyM2ZjNGE4ZDE0YWIxZDJiN2VmNTk2ODgzMWM5MyJ9fX0=");
+        ItemUtils.setSkullTexture(head, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWIyMDY0MzkwZTc5ZDllNTRjY2I0MThiMDczMzE1M2NmOTkyM2ZjNGE4ZDE0YWIxZDJiN2VmNTk2ODgzMWM5MyJ9fX0=");
         piglin.getEquipment().setHelmet(head);
         piglin.getEquipment().setItemInMainHand(new ItemStack(Material.WARPED_FUNGUS));
     }
@@ -36,7 +38,26 @@ public class FungusThrowerMonster extends ThrowerMonster {
 
     @Override
     public void performRangedAttack(LivingEntity target, float var4) {
-        Snowball snowball = piglin.launchProjectile(Snowball.class);
+        Snowball snowball = piglin.launchProjectile(Snowball.class, piglin.getLocation().getDirection().multiply(0.45));
         snowball.setItem(new ItemStack(Math.random() > 0.8 ? Material.CRIMSON_FUNGUS : Material.WARPED_FUNGUS));
+    }
+
+    @Override
+    public void performProjectileHit(Projectile projectile, LivingEntity target) {
+        Location location = projectile.getLocation();
+        Snowball snowball = (Snowball) projectile;
+        AreaEffectCloud cloud = (AreaEffectCloud) location.getWorld().spawnEntity(location, EntityType.AREA_EFFECT_CLOUD);
+        cloud.clearCustomEffects();
+        cloud.setRadius(2);
+        cloud.setDuration(30);
+        cloud.setSilent(true);
+        boolean crimson = snowball.getItem().getType() == Material.CRIMSON_FUNGUS;
+        cloud.setParticle(crimson ? Particle.CRIMSON_SPORE : Particle.WARPED_SPORE);
+        cloud.setBasePotionData(new PotionData(PotionType.INSTANT_DAMAGE));
+    }
+
+    @Override
+    public double getProjectileDamage(LivingEntity target) {
+        return .5;
     }
 }
