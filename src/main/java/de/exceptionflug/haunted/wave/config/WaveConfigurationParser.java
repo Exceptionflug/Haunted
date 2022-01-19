@@ -126,6 +126,8 @@ public class WaveConfigurationParser {
             } else if (argument.equals("{")) {
                 out.add(readBlock());
                 typeArgCounter ++;
+            } else if (argument.startsWith("{}")) {
+                out.add(new CodeBlock());
             } else if (argument.startsWith("(")) {
                 Map.Entry<Integer, Statement> entry = parseStatement(args, i, type, typeArgCounter, structure);
                 i = entry.getKey();
