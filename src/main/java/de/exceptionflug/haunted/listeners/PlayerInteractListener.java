@@ -1,16 +1,16 @@
 package de.exceptionflug.haunted.listeners;
 
 import com.google.inject.Inject;
-import de.exceptionflug.haunted.DebugUtil;
 import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.haunted.shop.Shop;
 import de.exceptionflug.haunted.switches.ElectricitySwitch;
-import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
-import de.exceptionflug.projectvenom.game.aop.Component;
+import de.exceptionflug.projectvenom.game.aop.Singleton;
+import de.exceptionflug.projectvenom.game.i18n.InternationalizationContext;
+import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
@@ -24,14 +24,16 @@ import org.bukkit.event.player.PlayerInteractEvent;
  *
  * @author Exceptionflug
  */
-@Component
+@Singleton
 public final class PlayerInteractListener implements Listener {
 
     private final GameContext context;
+    private final InternationalizationContext i18nContext;
 
     @Inject
-    public PlayerInteractListener(GameContext context) {
+    public PlayerInteractListener(GameContext context, InternationalizationContext i18nContext) {
         this.context = context;
+        this.i18nContext = i18nContext;
     }
 
     @EventHandler
@@ -55,7 +57,11 @@ public final class PlayerInteractListener implements Listener {
             }
             player.gold(player.gold() - sectionGate.price());
             sectionGate.unlock();
-            Message.broadcast(context.players(), context.messageConfiguration(), "Messages.gateOpened", "§6%player% §7hat das Tor %gate% §7geöffnet", "%player%", player.getName(), "%gate%", sectionGate.displayName());
+            i18nContext.broadcast(context.players().stream().map(GamePlayer::handle).toList(), "Messages.gateOpened", c -> {
+                c.setDefaultMessage(() -> "§6%player% §7hat das Tor %gate% §7geöffnet");
+                c.setArgument("player", player.handle().getName());
+                c.setArgument("gate", sectionGate.displayName());
+            });
         }
         if (Tag.BUTTONS.isTagged(clickedBlock.getType())) {
             Shop shop = context.<HauntedMap>currentMap().shopByTrigger(clickedBlock.getLocation());
@@ -80,7 +86,9 @@ public final class PlayerInteractListener implements Listener {
                 }
                 if (player.gold() < electricitySwitch.price()) {
                     event.setCancelled(true);
-                    Message.send(player, player.context().messageConfiguration(), "Messages.canNotAfford", "§cDu kannst dir das nicht leisten!");
+                    i18nContext.sendMessage(player.handle(), "Messages.canNotAfford", c -> {
+                        c.setDefaultMessage(() -> "§cDu kannst dir das nicht leisten!");
+                    });
                     return;
                 }
                 player.gold(player.gold() - electricitySwitch.price());

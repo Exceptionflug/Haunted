@@ -8,7 +8,7 @@ import de.exceptionflug.haunted.monsters.ImmuneMonster;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.projectvenom.game.GameContext;
-import de.exceptionflug.projectvenom.game.aop.Component;
+import de.exceptionflug.projectvenom.game.aop.Singleton;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -26,7 +26,7 @@ import java.util.UUID;
  *
  * @author Exceptionflug
  */
-@Component
+@Singleton
 public final class EntityDamageByEntityListener implements Listener {
 
     private final GameContext gameContext;
@@ -73,7 +73,7 @@ public final class EntityDamageByEntityListener implements Listener {
                 if (projectile.getPersistentDataContainer().has(Gun.HEADSHOT_KEY, PersistentDataType.BYTE)) {
                     shooter.giveGold(10);
                     EntityUtils.spawnPointsHologram(event.getEntity().getLocation(), "§6+10");
-                    shooter.playSound(shooter.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
+                    shooter.handle().playSound(shooter.handle().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
                     event.setDamage(EntityDamageEvent.DamageModifier.BASE, event.getDamage() * 1.5D);
                 } else {
                     shooter.giveGold(5);

@@ -46,7 +46,7 @@ public class TestMagicBoss extends BossMonster {
         evoker = (Evoker) location.getWorld().spawnEntity(location, EntityType.EVOKER);
         evoker.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 99999, 20, false, false));
         context.players().forEach(player -> {
-            bossBar.addPlayer(Objects.requireNonNull(player.getPlayer()));
+            bossBar.addPlayer(Objects.requireNonNull(player.handle()));
         });
         new BukkitRunnable() {
             @Override
@@ -55,8 +55,8 @@ public class TestMagicBoss extends BossMonster {
                 if (evoker.isDead()) {
                     cancel();
                     bossBar.removeAll();
-                    context.players().forEach(player -> player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1));
-                    context.players().forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 0));
+                    context.players().forEach(player -> player.handle().playSound(player.handle().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1));
+                    context.players().forEach(player -> player.handle().playSound(player.handle().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 0));
                 }
             }
         }.runTaskTimer(context.plugin(), 5, 5);

@@ -2,7 +2,6 @@ package de.exceptionflug.haunted.weapon;
 
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.shop.Shop;
-import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.mccommons.holograms.Hologram;
 import de.exceptionflug.mccommons.holograms.Holograms;
 import org.bukkit.Location;
@@ -62,7 +61,9 @@ public class GunShop implements Shop {
     @Override
     public boolean interact(HauntedPlayer player) {
         if (player.gold() < weaponPrice) {
-            Message.send(player, player.context().messageConfiguration(), "Messages.canNotAfford", "§cDu kannst dir das nicht leisten!");
+            player.i18n().sendMessage(player.handle(), "Messages.canNotAfford", c -> {
+                c.setDefaultMessage(() -> "§cDu kannst dir das nicht leisten!");
+            });
             return false;
         }
         Gun existingGun = null;
@@ -81,13 +82,15 @@ public class GunShop implements Shop {
         }
         if (existingGun != null) {
             if (existingGun.reloading()) {
-                Message.send(player, player.context().messageConfiguration(), "Messages.reloading", "§cDeine Waffe wird gerade nachgeladen! Versuche es gleich nochmal.");
+                player.i18n().sendMessage(player.handle(), "Messages.reloading", c -> {
+                    c.setDefaultMessage(() -> "§cDeine Waffe wird gerade nachgeladen! Versuche es gleich nochmal.");
+                });
                 return false;
             }
             existingGun.ammunition(gunType.maxAmmunition());
             existingGun.rounds(gunType.rounds());
-            player.getInventory().setItem(existingGun.slot(), existingGun.updateItem());
-            player.playSound(player.getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
+            player.handle().getInventory().setItem(existingGun.slot(), existingGun.updateItem());
+            player.handle().playSound(player.handle().getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         } else {
             Gun gun = new Gun(gunType, player, player.context());
             if (player.primaryWeapon() == null) {
@@ -96,17 +99,19 @@ public class GunShop implements Shop {
                 player.secondaryWeapon(gun);
             } else if (player.weaponSlots() == 3 && player.thirdWeapon() == null) {
                 player.thirdWeapon(gun);
-            } else if (player.getInventory().getHeldItemSlot() == 0) {
+            } else if (player.handle().getInventory().getHeldItemSlot() == 0) {
                 player.primaryWeapon(gun);
-            } else if (player.getInventory().getHeldItemSlot() == 1) {
+            } else if (player.handle().getInventory().getHeldItemSlot() == 1) {
                 player.secondaryWeapon(gun);
-            } else if (player.getInventory().getHeldItemSlot() == 2 && player.weaponSlots() == 3) {
+            } else if (player.handle().getInventory().getHeldItemSlot() == 2 && player.weaponSlots() == 3) {
                 player.thirdWeapon(gun);
             } else {
-                Message.send(player, player.context().messageConfiguration(), "Messages.selectWeaponSlot", "§cBitte wähle einen Waffenslot aus!");
+                player.i18n().sendMessage(player.handle(), "Messages.selectWeaponSlot", c -> {
+                    c.setDefaultMessage(() -> "§cBitte wähle einen Waffenslot aus!");
+                });
                 return false;
             }
-            player.playSound(player.getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
+            player.handle().playSound(player.handle().getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         }
         player.gold(player.gold() - weaponPrice);
         return true;

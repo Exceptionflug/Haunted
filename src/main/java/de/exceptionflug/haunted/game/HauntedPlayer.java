@@ -24,10 +24,13 @@ import de.exceptionflug.mccommons.scoreboards.Objective;
 import de.exceptionflug.mccommons.scoreboards.Scoreboards;
 import de.exceptionflug.mccommons.scoreboards.localized.LocalizedConfigBoard;
 import de.exceptionflug.projectvenom.game.GameContext;
+import de.exceptionflug.projectvenom.game.i18n.InternationalizationContext;
 import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -57,7 +60,8 @@ public class HauntedPlayer extends GamePlayer {
     private static final ItemStack PLACEHOLDER = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setTitle("§8").build();
     private static final ItemStack FORBIDDEN = new ItemBuilder(Material.BARRIER).setTitle("§cNicht freigeschaltet").build();
     private static final SpigotConfig SCOREBOARD_CONFIG = ConfigFactory.create(new File("plugins/Haunted/scoreboard.yml"), SpigotConfig.class);
-    private LocalizedConfigBoard scoreboard;
+    private final InternationalizationContext i18n;
+    private final LocalizedConfigBoard scoreboard;
     private Objective goldObjective;
     private Objective healthObjective;
     private Location deathLocation;
@@ -90,6 +94,7 @@ public class HauntedPlayer extends GamePlayer {
 
     public HauntedPlayer(Player handle, GameContext context) {
         super(handle, context);
+        i18n = context.injector().getInstance(InternationalizationContext.class);
         scoreboard = new LocalizedConfigBoard(SCOREBOARD_CONFIG);
         goldObjective = scoreboard.getScoreboard().registerNewObjective("gold", "dummy");
         goldObjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
@@ -99,7 +104,7 @@ public class HauntedPlayer extends GamePlayer {
         scoreboard.format("%gold%", abstractBoardHolder -> Integer.toString(gold));
         scoreboard.format("%kills%", abstractBoardHolder -> Integer.toString(kills));
         scoreboard.format("%section%", abstractBoardHolder -> {
-            MapSection section = context.<HauntedMap>currentMap().mapSection(getLocation());
+            MapSection section = context.<HauntedMap>currentMap().mapSection(handle().getLocation());
             if (section == null) {
                 return "N/A";
             } else {
@@ -123,29 +128,32 @@ public class HauntedPlayer extends GamePlayer {
             return "0";
         });
         primaryWeapon = new Gun(GunType.PISTOL, this, context);
-        colorPrefix("§7");
+        prefix(Component.empty().color(NamedTextColor.GRAY));
     }
 
     public void playerDied() {
-        deathLocation = getLocation();
+        deathLocation = handle().getLocation();
         dead = true;
         revivable = context().alivePlayers().size() > 1;
         respawnTimer = 30;
         setSpectator(false);
         if (revivable) {
-            Message.broadcast(context().players(), context().messageConfiguration(), "Messages.playerUnconscious", "§6%player% §7ist außer Gefecht! Du hast 30 Sekunden Zeit ihn oder sie wiederzubeleben.", "%player%", getName());
-            getPlayer().sendTitle("§7Du bist außer Gefecht!", "§eDu kannst noch wiederbelebt werden", 10, 40, 10);
-            context().players().forEach(player -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1));
+            i18n.broadcast(context().players(), "Messages.playerUnconscious", c -> {
+                c.setDefaultMessage(() -> "§6%player% §7ist außer Gefecht! Du hast 30 Sekunden Zeit ihn oder sie wiederzubeleben.");
+                c.setArgument("player", handle().getName());
+            });
+            handle().sendTitle("§7Du bist außer Gefecht!", "§eDu kannst noch wiederbelebt werden", 10, 40, 10);
+            context().players().forEach(player -> player.handle().playSound(player.handle().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1));
             createLayingBody(deathLocation.clone().add(0, 0.2, 0));
         }
-        setExp(1);
-        setLevel(30);
-        setHealth(20);
-        Bukkit.getScheduler().runTaskLater(context().plugin(), () -> spigot().respawn(), 10);
+        handle().setExp(1);
+        handle().setLevel(30);
+        handle().setHealth(20);
+        Bukkit.getScheduler().runTaskLater(context().plugin(), () -> handle().spigot().respawn(), 10);
     }
 
     public void createLayingBody(Location location) {
-        body = new NPC(location, (GameProfile) WrappedGameProfile.fromPlayer(getPlayer()).getHandle());
+        body = new NPC(location, (GameProfile) WrappedGameProfile.fromPlayer(handle()).getHandle());
         body.spawn();
         Bukkit.getScheduler().runTaskAsynchronously(context().plugin(), () -> {
             sneakHologram = Holograms.createHologram(location.add(0, 0.5, 0));
@@ -155,7 +163,7 @@ public class HauntedPlayer extends GamePlayer {
         });
     }
 
-    public void revive(HauntedPlayer player) {
+    public void revive(HauntedPlayer hauntedPlayer) {
         if (!dead || !revivable) {
             return;
         }
@@ -169,6 +177,7 @@ public class HauntedPlayer extends GamePlayer {
 
             @Override
             public void run() {
+                Player player = hauntedPlayer.handle();
                 timer++;
                 if (!revivable) {
                     beeingRevived = false;
@@ -185,7 +194,7 @@ public class HauntedPlayer extends GamePlayer {
                 if (timer == reviveTicks) {
                     cancel();
                     respawn();
-                    getPlayer().sendTitle("§aDu wurdest gerettet!", "", 10, 40, 10);
+                    handle().sendTitle("§aDu wurdest gerettet!", "", 10, 40, 10);
                 }
             }
 
@@ -197,7 +206,7 @@ public class HauntedPlayer extends GamePlayer {
         dead = false;
         revivable = false;
         setAlive(false);
-        teleport(deathLocation);
+        handle().teleport(deathLocation);
         removeLayingBody();
     }
 
@@ -231,24 +240,24 @@ public class HauntedPlayer extends GamePlayer {
         }
         if (secondaryWeapon != null) {
             secondaryWeapon.give(this, 2);
-        } else getInventory().setItem(2, PLACEHOLDER_GUN);
+        } else handle().getInventory().setItem(2, PLACEHOLDER_GUN);
         if (weaponSlots == 3) {
             if (thirdWeapon != null) {
                 thirdWeapon.give(this, 3);
-            } else getInventory().setItem(3, PLACEHOLDER_GUN);
+            } else handle().getInventory().setItem(3, PLACEHOLDER_GUN);
         }
-        getInventory().setItem(4, PLACEHOLDER_MAGIC);
+        handle().getInventory().setItem(4, PLACEHOLDER_MAGIC);
         if (primaryPerk() != null) {
             primaryPerk.give(this, 6);
-        } else getInventory().setItem(6, PLACEHOLDER_PERK);
+        } else handle().getInventory().setItem(6, PLACEHOLDER_PERK);
         if (secondaryPerk() != null) {
             secondaryPerk.give(this, 7);
-        } else getInventory().setItem(7, PLACEHOLDER_PERK);
+        } else handle().getInventory().setItem(7, PLACEHOLDER_PERK);
         if (thirdPerk() != null && perkSlots == 3) {
             thirdPerk.give(this, 8);
-        } else getInventory().setItem(8, PLACEHOLDER_PERK);
+        } else handle().getInventory().setItem(8, PLACEHOLDER_PERK);
         Consumer<Armor> armorConsumer = armor -> {
-            if (armor != null) armor.giveArmor(getInventory());
+            if (armor != null) armor.giveArmor(handle().getInventory());
         };
         armorConsumer.accept(helmetArmor());
         armorConsumer.accept(chestplateArmor());
@@ -258,7 +267,7 @@ public class HauntedPlayer extends GamePlayer {
 
     @Override
     public void setIngameScoreboard() {
-        Scoreboards.show(this, scoreboard.getScoreboard());
+        Scoreboards.show(handle(), scoreboard.getScoreboard());
     }
 
     public void primaryWeapon(Weapon gun) {
@@ -346,49 +355,54 @@ public class HauntedPlayer extends GamePlayer {
         updateTabScores();
         if (dead && revivable) {
             respawnTimer--;
-            setLevel(respawnTimer);
+            handle().setLevel(respawnTimer);
             String color = respawnTimer < 10 ? "§c" : "§e";
             secondsLine.setText(color + respawnTimer + "s");
             if (respawnTimer != 0) {
-                setExp(respawnTimer / 30F);
+                handle().setExp(respawnTimer / 30F);
             } else {
                 revivable = false;
                 sneakHologram.despawn();
-                getPlayer().sendTitle("§cDu bist gestorben!", "§7Du wirst am Anfang der nächsten Welle wiederbelebt", 10, 40, 10);
-                Message.broadcast(context().players(), context().messageConfiguration(), "Messages.playerDied", "§6%player% §7ist gestorben! Er oder sie wird am Anfang der nächsten Welle wiederbelebt.", "%player%", getName());
-                context().players().forEach(player -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 0));
+                handle().sendTitle("§cDu bist gestorben!", "§7Du wirst am Anfang der nächsten Welle wiederbelebt", 10, 40, 10);
+                i18n.broadcast(context().players(), "Messages.playerDied", c -> {
+                    c.setDefaultMessage(() -> "§6%player% §7ist gestorben! Er oder sie wird am Anfang der nächsten Welle wiederbelebt.");
+                    c.setArgument("player", handle().getName());
+                });
+                context().players().forEach(player -> player.handle().playSound(player.handle().getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 0));
             }
         }
     }
 
     private void updateTabScores() {
         for (HauntedPlayer player : context().<HauntedPlayer>players()) {
-            goldObjective.getScore(player).setScore(player.gold());
+            goldObjective.getScore(player.handle()).setScore(player.gold());
         }
     }
 
     private void checkRepairing() {
         HauntedMap hauntedMap = context().currentMap();
-        MobGate mobGate = hauntedMap.mobGateByRepairZone(getLocation());
-        if (mobGate != null && isSneaking() && !spectator()) {
+        MobGate mobGate = hauntedMap.mobGateByRepairZone(handle().getLocation());
+        if (mobGate != null && handle().isSneaking() && !spectator()) {
             if (context().<HauntedIngamePhase>phase().wave() != null) {
                 for (Monster monster : context().<HauntedIngamePhase>phase().wave().entities().values()) {
                     LivingEntity entity = monster.getEntity();
-                    if (!entity.isDead() && entity.getLocation().distance(getLocation()) < 6) {
-                        Message.send(this, context().messageConfiguration(), "Messages.monstersNearby", "§cEs sind Monster in der Nähe.");
+                    if (!entity.isDead() && entity.getLocation().distance(handle().getLocation()) < 6) {
+                        i18n.sendMessage(handle(), "Messages.monstersNearby", c -> {
+                            c.setDefaultMessage(() -> "§cEs sind Monster in der Nähe.");
+                        });
                         return;
                     }
                 }
             }
             if (mobGate.repairingPlayer() != null) {
-                if (!mobGate.repairingPlayer().getUniqueId().equals(getUniqueId())) {
+                if (!mobGate.repairingPlayer().getUniqueId().equals(handle().getUniqueId())) {
                     return;
                 }
             }
             if (mobGate.repaired()) {
                 return;
             }
-            mobGate.repairingPlayer(getPlayer());
+            mobGate.repairingPlayer(handle().getPlayer());
             Location location = mobGate.repairGate(1);
             if (location != null) {
                 giveGold(10);
@@ -396,20 +410,19 @@ public class HauntedPlayer extends GamePlayer {
             }
             if (mobGate.repaired()) {
                 mobGate.repairingPlayer(null);
-                playSound(getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
+                handle().playSound(handle().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
             }
         } else {
             hauntedMap.mobGates().forEach(it -> {
-                if (it.repairingPlayer() != null && it.repairingPlayer().getUniqueId().equals(getUniqueId())) {
+                if (it.repairingPlayer() != null && it.repairingPlayer().getUniqueId().equals(handle().getUniqueId())) {
                     it.repairingPlayer(null);
                 }
             });
         }
     }
 
-    @Override
-    public GameContext context() {
-        return super.context();
+    public InternationalizationContext i18n() {
+        return i18n;
     }
 
 }

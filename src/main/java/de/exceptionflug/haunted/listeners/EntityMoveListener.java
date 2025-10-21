@@ -5,14 +5,14 @@ import de.exceptionflug.haunted.GateUtils;
 import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.projectvenom.game.GameContext;
-import de.exceptionflug.projectvenom.game.aop.Component;
+import de.exceptionflug.projectvenom.game.aop.Singleton;
 import de.exceptionflug.projectvenom.game.phases.IngamePhase;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,7 +21,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component
+@Singleton
 public class EntityMoveListener implements Listener {
 
     private final GameContext context;

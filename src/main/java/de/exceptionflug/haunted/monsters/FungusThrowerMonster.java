@@ -53,7 +53,7 @@ public class FungusThrowerMonster extends GateMonster implements RangedMonster {
         cloud.setSilent(true);
         boolean crimson = snowball.getItem().getType() == Material.CRIMSON_FUNGUS;
         cloud.setParticle(crimson ? Particle.CRIMSON_SPORE : Particle.WARPED_SPORE);
-        cloud.setBasePotionData(new PotionData(PotionType.INSTANT_DAMAGE));
+        cloud.setBasePotionData(new PotionData(PotionType.HARMING));
     }
 
     @Override

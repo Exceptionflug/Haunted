@@ -17,10 +17,10 @@ public abstract class AnimalMonster extends Monster {
     public void spawn(LivingEntity entity, Location location) {
         super.spawn(entity, location);
         if (getNmsEntity() instanceof Animal mob) {
-            mob.goalSelector.removeAllGoals();
+            mob.goalSelector.removeAllGoals(goal -> true);
             mob.goalSelector.addGoal(1, new FloatGoal(mob));
             mob.goalSelector.addGoal(5, new MeleeAttackGoal(mob, 1.0D, true));
-            mob.targetSelector.removeAllGoals();
+            mob.targetSelector.removeAllGoals(goal -> true);
             mob.targetSelector.addGoal(1, getPlayerGoal());
         }
     }

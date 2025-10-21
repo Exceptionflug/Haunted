@@ -5,10 +5,10 @@ import de.exceptionflug.haunted.game.gate.MobGate;
 import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.section.MapSection;
 import de.exceptionflug.projectvenom.game.GameContext;
+import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,15 +52,15 @@ public abstract class AbstractWave {
         List<MobGate> out = new ArrayList<>();
         for (MobGate gate : context.<HauntedMap>currentMap().mobGates()) {
             MapSection section = context.<HauntedMap>currentMap().mapSection(gate.mapSection());
-            for (Player player : context.alivePlayers()) {
-                if (section.isInside(player.getLocation())) {
+            for (GamePlayer player : context.alivePlayers()) {
+                if (section.isInside(player.handle().getLocation())) {
                     out.add(gate);
                     break;
                 }
             }
         }
         if (out.isEmpty()) {
-            out.add(context.<HauntedMap>currentMap().mobGates().get(0));
+            out.add(context.<HauntedMap>currentMap().mobGates().getFirst());
         }
         return out;
     }

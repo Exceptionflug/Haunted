@@ -7,10 +7,11 @@ import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.wave.AbstractWave;
-import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
+import de.exceptionflug.projectvenom.game.i18n.InternationalizationContext;
 import de.exceptionflug.projectvenom.game.option.OptionComponent;
 import de.exceptionflug.projectvenom.game.phases.IngamePhase;
+import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -22,16 +23,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
-import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -52,8 +49,8 @@ public class HauntedIngamePhase extends IngamePhase {
     private long waveTime;
 
     @Inject
-    public HauntedIngamePhase(GameContext context) {
-        super(context);
+    public HauntedIngamePhase(GameContext context, InternationalizationContext i18nContext) {
+        super(context, i18nContext);
     }
 
     @Override
@@ -88,14 +85,20 @@ public class HauntedIngamePhase extends IngamePhase {
         this.waveTime = System.currentTimeMillis();
         this.wave = wave;
         wave.enable();
-        Message.broadcast(context().players(), context().messageConfiguration(), "Messages.waveBroadcast", "§7Welle §6%wave% §7beginnt!", "%wave%", Integer.toString(wave.wave()));
+        i18nContext().broadcast(context().players().stream().map(GamePlayer::handle).toList(), "Messages.waveBroadcast", c -> {
+            c.setDefaultMessage(() -> "§7Welle §6%wave% §7beginnt!");
+            c.setArgument("wave", Integer.toString(wave.wave()));
+        });
     }
 
     public void electricity(HauntedPlayer player, boolean electricity) {
         this.electricity = electricity;
         if (electricity) {
-            context().players().forEach(player1 -> player1.playSound(player1.getLocation(), Sound.ENTITY_WITHER_DEATH, 5, 1));
-            Message.broadcast(context().players(), context().messageConfiguration(), "Messages.electricityOn", "§6%player% §7hat die §bElektrizität §7aktiviert.", "%player%", player.getName());
+            context().players().forEach(player1 -> player1.playSound(Sound.ENTITY_WITHER_DEATH, 5, 1));
+            i18nContext().broadcast(context().players().stream().map(GamePlayer::handle).toList(), "Messages.electricityOn", c -> {
+                c.setDefaultMessage(() -> "§6%player% §7hat die §bElektrizität §7aktiviert.");
+                c.setArgument("player", player.handle().getName());
+            });
             for (SectionGate gate : context().<HauntedMap>currentMap().sectionGates()) {
                 gate.electricity();
             }
@@ -105,8 +108,8 @@ public class HauntedIngamePhase extends IngamePhase {
     private void startGameLoop() {
         context().<HauntedPlayer>players().forEach(player -> {
             player.scoreboard().format("%time%", h -> DurationFormatUtils.formatDuration(System.currentTimeMillis() - startedSince, "mm:ss", true));
-            player.getInventory().setHeldItemSlot(0);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 155, false, false));
+            player.handle().getInventory().setHeldItemSlot(0);
+            player.handle().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 155, false, false));
         });
         task = Bukkit.getScheduler().runTaskTimer(context().plugin(), () -> {
             context().<HauntedPlayer>players().forEach(HauntedPlayer::update);
@@ -121,7 +124,7 @@ public class HauntedIngamePhase extends IngamePhase {
                             for (HauntedPlayer player : context().<HauntedPlayer>players()) {
                                 if (player.dead()) {
                                     player.respawn();
-                                    player.sendTitle("§aDu wurdest wiederbelebt!", "", 10, 40, 10);
+                                    player.handle().sendTitle("§aDu wurdest wiederbelebt!", "", 10, 40, 10);
                                 }
                             }
                             initWave(wave);
@@ -142,7 +145,7 @@ public class HauntedIngamePhase extends IngamePhase {
             HauntedMap map = context().currentMap();
             AbstractWave wave = map.wave(1);
             if (wave == null) {
-                Bukkit.getLogger().warning("Unable to begin with wave 1: No such wave");
+                context().plugin().getLogger().warning("Unable to begin with wave 1: No such wave");
                 return;
             }
             initWave(wave);
@@ -174,7 +177,7 @@ public class HauntedIngamePhase extends IngamePhase {
         if (event.getTarget() instanceof Player) {
             HauntedPlayer player = context().player(event.getTarget().getUniqueId());
             if (player.spectator()) {
-                event.setTarget(context().alivePlayers().get(ThreadLocalRandom.current().nextInt(context().alivePlayers().size())));
+                event.setTarget(context().alivePlayers().get(ThreadLocalRandom.current().nextInt(context().alivePlayers().size())).handle());
             }
         }
     }

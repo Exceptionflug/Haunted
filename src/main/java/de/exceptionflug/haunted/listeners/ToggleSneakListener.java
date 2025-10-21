@@ -4,22 +4,15 @@ import com.google.inject.Inject;
 import de.exceptionflug.haunted.game.HauntedMap;
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.game.gate.MobGate;
-import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
-import de.exceptionflug.mccommons.config.spigot.Message;
 import de.exceptionflug.projectvenom.game.GameContext;
-import de.exceptionflug.projectvenom.game.aop.Component;
+import de.exceptionflug.projectvenom.game.aop.Singleton;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
-/**
- * Date: 04.08.2021
- *
- * @author Exceptionflug
- */
-@Component
+@Singleton
 public final class ToggleSneakListener implements Listener {
 
     private final GameContext game;
@@ -45,7 +38,7 @@ public final class ToggleSneakListener implements Listener {
             if (player.spectator()) {
                 return;
             }
-            HauntedPlayer dead = phase.deadBodyInRange(player.getLocation(), 3);
+            HauntedPlayer dead = phase.deadBodyInRange(player.handle().getLocation(), 3);
             if (dead == null) {
                 return;
             }

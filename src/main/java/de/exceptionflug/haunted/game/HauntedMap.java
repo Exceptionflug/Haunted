@@ -15,11 +15,11 @@ import de.exceptionflug.haunted.wave.ConfiguredWave;
 import de.exceptionflug.haunted.wave.config.ParseException;
 import de.exceptionflug.haunted.weapon.GunShop;
 import de.exceptionflug.haunted.weapon.GunType;
-import de.exceptionflug.mccommons.config.spigot.SpigotConfig;
 import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.map.AbstractGameMap;
 import de.exceptionflug.projectvenom.game.map.teleporters.PerPlayerTeleporter;
-import org.bukkit.Bukkit;
+import de.leonhard.storage.Yaml;
+import lombok.extern.slf4j.Slf4j;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
@@ -27,13 +27,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 /**
  * Date: 10.08.2021
  *
  * @author Exceptionflug
  */
+@Slf4j(topic = "Haunted: Map")
 public class HauntedMap extends AbstractGameMap {
 
     private final Map<Integer, Shop> shopMap = new ConcurrentHashMap<>();
@@ -44,7 +44,7 @@ public class HauntedMap extends AbstractGameMap {
     private final GameContext context;
     private ElectricitySwitch electricitySwitch;
 
-    public HauntedMap(String mapName, SpigotConfig config, GameContext context) {
+    public HauntedMap(String mapName, Yaml config, GameContext context) {
         super(context, mapName, config, PerPlayerTeleporter.create(mapName, context));
         this.context = context;
     }
@@ -61,11 +61,11 @@ public class HauntedMap extends AbstractGameMap {
     }
 
     private void loadSwitch() {
-        if (!config().isSet("switch.location")) {
+        if (config().contains("switch.location")) {
             return;
         }
-        electricitySwitch = new ElectricitySwitch(config().getLocation("switch.location"),
-                config().getLocation("switch.leverLocation"),
+        electricitySwitch = new ElectricitySwitch(locationFromConfig("switch.location"),
+                locationFromConfig("switch.leverLocation"),
                 config().getOrSetDefault("switch.name", "Generator"),
                 config().getOrSetDefault("switch.price", 5000));
         electricitySwitch.spawn();
@@ -73,10 +73,10 @@ public class HauntedMap extends AbstractGameMap {
 
     private void loadShops() {
         int id = 0;
-        for (String key : config().getKeys("shops")) {
+        for (String key : config().singleLayerKeySet("shops")) {
             id++;
-            Location location = config().getLocation("shops." + key + ".location");
-            Location buttonLocation = config().getLocation("shops." + key + ".buttonLocation");
+            Location location = locationFromConfig("shops." + key + ".location");
+            Location buttonLocation = locationFromConfig("shops." + key + ".buttonLocation");
             String type = config().getOrSetDefault("shops." + key + ".type", "GUN");
             Shop shop;
             if (type.equals("GUN")) {
@@ -86,7 +86,7 @@ public class HauntedMap extends AbstractGameMap {
             } else if (type.equals("PERK")) {
                 PerkType perkType = PerkType.valueOf(config().getOrSetDefault("shops." + key + ".perkType", "HEAL"));
                 List<Integer> prices = new ArrayList<>();
-                for (String level : config().getKeys("shops." + key + ".prices")) {
+                for (String level : config().singleLayerKeySet("shops." + key + ".prices")) {
                     prices.add(config().getOrSetDefault("shops." + key + ".prices." + level, 100));
                 }
                 shop = new PerkShop(id, perkType, prices, location, buttonLocation);
@@ -103,11 +103,11 @@ public class HauntedMap extends AbstractGameMap {
                     //        price, priceMultiplier, location, buttonLocation);
                     shop = null;
                 } else {
-                    Bukkit.getLogger().warning("Unable to load ARMOR shop of variant " + variant);
+                    log.warn("Unable to load ARMOR shop of variant {}", variant);
                     continue;
                 }
             } else {
-                Bukkit.getLogger().warning("Unable to load shop of type " + type);
+                log.warn("Unable to load shop of type {}", type);
                 continue;
             }
             shopMap.put(id, shop);
@@ -116,13 +116,13 @@ public class HauntedMap extends AbstractGameMap {
     }
 
     private void loadSectionGates() {
-        for (String key : config().getKeys("sectiongates")) {
-            Location pos1 = config().getLocation("sectiongates." + key + ".gate.pos1");
-            Location pos2 = config().getLocation("sectiongates." + key + ".gate.pos2");
-            Location hologram = config().getLocation("sectiongates." + key + ".hologram");
+        for (String key : config().singleLayerKeySet("sectiongates")) {
+            Location pos1 = locationFromConfig("sectiongates." + key + ".gate.pos1");
+            Location pos2 = locationFromConfig("sectiongates." + key + ".gate.pos2");
+            Location hologram = locationFromConfig("sectiongates." + key + ".hologram");
             Location hologram2 = null;
-            if (config().isSet("sectiongates." + key + ".hologram2")) {
-                hologram2 = config().getLocation("sectiongates." + key + ".hologram2");
+            if (config().contains("sectiongates." + key + ".hologram2")) {
+                hologram2 = locationFromConfig("sectiongates." + key + ".hologram2");
             }
             int price = config().getOrSetDefault("sectiongates." + key + ".price", 1000);
             boolean requiresPower = config().getOrSetDefault("sectiongates." + key + ".requiresPower", false);
@@ -130,7 +130,7 @@ public class HauntedMap extends AbstractGameMap {
             String displayName = config().getOrSetDefault("sectiongates." + key + ".displayName", "Bill Gates");
             sectionGates.put(key, new SectionGate(new CuboidRegion(pos1, pos2), materials, hologram, hologram2, displayName, price, requiresPower));
         }
-        Bukkit.getLogger().info("Loaded " + mobGates.size() + " mob gates");
+        log.info("Loaded {} mob gates", mobGates.size());
     }
 
     private void loadWaves() {
@@ -141,18 +141,18 @@ public class HauntedMap extends AbstractGameMap {
                 ConfiguredWave wave = new ConfiguredWave(file, context);
                 waveMap.put(wave.wave(), wave);
             } catch (IOException | ParseException e) {
-                Bukkit.getLogger().log(Level.SEVERE, "Unable to load " + file.getName(), e);
+                log.error("Unable to load {}", file.getName(), e);
             }
         }
     }
 
     private void loadMapSections() {
-        for (String key : config().getKeys("sections")) {
+        for (String key : config().singleLayerKeySet("sections")) {
             String displayName = config().getOrSetDefault("sections." + key + ".displayName", "Region");
             List<CuboidRegion> regions = new ArrayList<>();
-            for (String key2 : config().getKeys("sections." + key + ".regions")) {
-                Location pos1 = config().getLocation("sections." + key + ".regions." + key2 + ".pos1");
-                Location pos2 = config().getLocation("sections." + key + ".regions." + key2 + ".pos2");
+            for (String key2 : config().singleLayerKeySet("sections." + key + ".regions")) {
+                Location pos1 = locationFromConfig("sections." + key + ".regions." + key2 + ".pos1");
+                Location pos2 = locationFromConfig("sections." + key + ".regions." + key2 + ".pos2");
                 regions.add(new CuboidRegion(pos1, pos2));
             }
             sections.put(key, new MapSection(key, displayName, regions));
@@ -160,20 +160,20 @@ public class HauntedMap extends AbstractGameMap {
     }
 
     private void loadMobGates() {
-        for (String key : config().getKeys("mobgates")) {
-            Location pos1 = config().getLocation("mobgates." + key + ".gate.pos1");
-            Location pos2 = config().getLocation("mobgates." + key + ".gate.pos2");
-            Location repairPos1 = config().getLocation("mobgates." + key + ".repairZone.pos1");
-            Location repairPos2 = config().getLocation("mobgates." + key + ".repairZone.pos2");
-            Location spawnPos = config().getLocation("mobgates." + key + ".spawn");
+        for (String key : config().singleLayerKeySet("mobgates")) {
+            Location pos1 = locationFromConfig("mobgates." + key + ".gate.pos1");
+            Location pos2 = locationFromConfig("mobgates." + key + ".gate.pos2");
+            Location repairPos1 = locationFromConfig("mobgates." + key + ".repairZone.pos1");
+            Location repairPos2 = locationFromConfig("mobgates." + key + ".repairZone.pos2");
+            Location spawnPos = locationFromConfig("mobgates." + key + ".spawn");
             MapSection section = mapSection(pos1);
             if (section == null) {
-                Bukkit.getLogger().warning("Unable to load mob gate " + key + ": pos1 must be inside of a map section!");
+                log.warn("Unable to load mob gate {}: pos1 must be inside of a map section!", key);
                 continue;
             }
             mobGates.add(new MobGate(pos1, pos2, repairPos1, repairPos2, spawnPos, section.name()));
         }
-        Bukkit.getLogger().info("Loaded " + mobGates.size() + " mob gates");
+        log.warn("Loaded {} mob gates", mobGates.size());
     }
 
     public MobGate mobGateByRepairZone(Location location) {

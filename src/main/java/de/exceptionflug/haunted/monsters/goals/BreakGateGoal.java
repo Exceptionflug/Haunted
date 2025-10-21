@@ -14,7 +14,7 @@ public class BreakGateGoal extends Goal {
     }
 
     public boolean canUse() {
-        return this.mob.isOnGround();
+        return this.mob.onGround();
     }
 
     private int breakTime = 0;
@@ -50,7 +50,7 @@ public class BreakGateGoal extends Goal {
                 // break animation
                 int i = (int)((float)breakTime / (float)blockBreakTime * 10.0F);
                 if (i != lastBreakProgress) {
-                    this.mob.level.destroyBlockProgress(this.mob.getId(), this.blockPos, i);
+                    this.mob.level().destroyBlockProgress(this.mob.getId(), this.blockPos, i);
                     this.lastBreakProgress = i;
                 }
             }

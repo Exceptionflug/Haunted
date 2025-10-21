@@ -1,69 +1,80 @@
 package de.exceptionflug.haunted.commands;
 
 import com.google.inject.Inject;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import de.exceptionflug.haunted.game.HauntedMap;
-import de.exceptionflug.mccommons.commands.api.annotation.Command;
-import de.exceptionflug.mccommons.commands.api.annotation.SubCommand;
-import de.exceptionflug.mccommons.commands.api.input.CommandInput;
-import de.exceptionflug.mccommons.commands.spigot.command.SpigotCommand;
 import de.exceptionflug.projectvenom.game.GameContext;
-import de.exceptionflug.projectvenom.game.aop.Component;
+import de.exceptionflug.projectvenom.game.aop.Singleton;
+import de.exceptionflug.projectvenom.game.aop.command.VenomPaperCommand;
+import de.exceptionflug.projectvenom.game.i18n.InternationalizationContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
+
+import static com.mojang.brigadier.arguments.StringArgumentType.string;
 
 /**
  * Date: 22.09.2021
  *
  * @author Exceptionflug
  */
-@Component
-@Command(value = "config", inGameOnly = true, permission = "haunted.config")
-public class ConfigCommand extends SpigotCommand {
-
-    private final GameContext context;
+@Singleton
+public class ConfigCommand extends VenomPaperCommand {
 
     @Inject
-    public ConfigCommand(GameContext context) {
-        this.context = context;
+    public ConfigCommand(GameContext context, InternationalizationContext i18nContext) {
+        super(context, i18nContext);
     }
 
     @Override
-    public void onCommand(CommandInput commandInput) {
-
+    public LiteralCommandNode<CommandSourceStack> command() {
+        return Commands.literal("config")
+                .requires(sender -> sender.getSender() instanceof Player
+                        && sender.getSender().hasPermission("haunted.config")
+                        && context.phase().ingamePhase()
+                )
+                .then(Commands.literal("block")
+                        .then(Commands.argument("path", string())
+                        .executes(this::blockCommand)))
+                .then(Commands.literal("loc")
+                        .then(Commands.argument("path", string())
+                                .executes(this::locCommand)))
+                .then(Commands.literal("look")
+                        .then(Commands.argument("path", string())
+                                .executes(this::lookCommand)))
+                .build();
     }
 
-    @SubCommand("block")
-    public void block(CommandInput commandInput) {
-        String path = commandInput.findString(0, "Messages.noConfigPath", "§cBitte gib einen Path an.");
-        Player player = (Player) getSender().getHandle();
+    private int blockCommand(CommandContext<CommandSourceStack> commandContext) {
+        Player player = (Player) commandContext.getSource().getSender();
+        String path = commandContext.getArgument("path", String.class);
         context.<HauntedMap>currentMap().config().set(path, player.getLocation().getBlock().getLocation());
-        context.<HauntedMap>currentMap().config().save();
         player.sendMessage("§aJo hat funktioniert.");
+        return 1;
     }
 
-    @SubCommand("loc")
-    public void loc(CommandInput commandInput) {
-        String path = commandInput.findString(0, "Messages.noConfigPath", "§cBitte gib einen Path an.");
-        Player player = (Player) getSender().getHandle();
+    private int locCommand(CommandContext<CommandSourceStack> commandContext) {
+        Player player = (Player) commandContext.getSource().getSender();
+        String path = commandContext.getArgument("path", String.class);
         context.<HauntedMap>currentMap().config().set(path, player.getLocation());
-        context.<HauntedMap>currentMap().config().save();
         player.sendMessage("§aJo hat funktioniert.");
+        return 1;
     }
 
-    @SubCommand("look")
-    public void look(CommandInput commandInput) {
-        String path = commandInput.findString(0, "Messages.noConfigPath", "§cBitte gib einen Path an.");
-        Player player = (Player) getSender().getHandle();
+    private int lookCommand(CommandContext<CommandSourceStack> commandContext) {
+        Player player = (Player) commandContext.getSource().getSender();
+        String path = commandContext.getArgument("path", String.class);
         RayTraceResult rayTraceResult = player.rayTraceBlocks(5D);
         if (rayTraceResult == null || rayTraceResult.getHitBlock() == null) {
             player.sendMessage("§cGuck halt Block an.");
-            return;
+            return 0;
         }
         Block hitBlock = rayTraceResult.getHitBlock();
         context.<HauntedMap>currentMap().config().set(path, hitBlock.getLocation());
-        context.<HauntedMap>currentMap().config().save();
         player.sendMessage("§aJo hat funktioniert.");
+        return 1;
     }
-
 }

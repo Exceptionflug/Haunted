@@ -6,6 +6,7 @@ import de.exceptionflug.haunted.game.gate.SectionGate;
 import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.shop.Shop;
 import de.exceptionflug.haunted.wave.ConfiguredWave;
+import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import de.exceptionflug.regisseur.Cutscene;
 import de.exceptionflug.regisseur.path.Position;
 import de.exceptionflug.regisseur.path.Vector3D;
@@ -243,8 +244,8 @@ public class InstructionExecutor {
         float volume = ((Double) statement.arguments()[1]).floatValue();
         float pitch = ((Double) statement.arguments()[2]).floatValue();
         Bukkit.getScheduler().runTask(wave.context().plugin(), () -> {
-            for (Player player : wave.context().players()) {
-                player.playSound(player.getLocation(), (Sound) statement.arguments()[0], volume, pitch);
+            for (GamePlayer player : wave.context().players()) {
+                player.handle().playSound(player.handle().getLocation(), (Sound) statement.arguments()[0], volume, pitch);
             }
         });
         return null;
@@ -328,8 +329,8 @@ public class InstructionExecutor {
     private Void executeTeleport(Statement statement) {
         Location location = (Location) statement.arguments()[0];
         Bukkit.getScheduler().runTask(wave.context().plugin(), () -> {
-            for (Player player : wave.context().players()) {
-                player.teleport(location);
+            for (GamePlayer player : wave.context().players()) {
+                player.handle().teleport(location);
             }
         });
         return null;

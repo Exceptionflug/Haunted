@@ -5,7 +5,7 @@ import de.exceptionflug.haunted.monsters.RangedMonster;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.haunted.weapon.Gun;
 import de.exceptionflug.projectvenom.game.GameContext;
-import de.exceptionflug.projectvenom.game.aop.Component;
+import de.exceptionflug.projectvenom.game.aop.Singleton;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -21,7 +21,7 @@ import org.bukkit.persistence.PersistentDataType;
  *
  * @author Exceptionflug
  */
-@Component
+@Singleton
 public final class ProjectileHitListener implements Listener {
 
     private final GameContext context;
@@ -54,7 +54,7 @@ public final class ProjectileHitListener implements Listener {
     }
 
     private void spawnParticles(Block hitBlock, Projectile projectile) {
-        projectile.getWorld().spawnParticle(Particle.BLOCK_CRACK, projectile.getLocation(),
+        projectile.getWorld().spawnParticle(Particle.BLOCK, projectile.getLocation(),
                 10, 0, 0, 0, 0.2, hitBlock.getBlockData());
         projectile.getWorld().playSound(hitBlock.getLocation(), hitBlock.getBlockData().getSoundGroup().getHitSound(), 1, 1);
         if (projectile instanceof AbstractArrow) {
@@ -63,7 +63,7 @@ public final class ProjectileHitListener implements Listener {
     }
 
     private void spawnParticles(Entity hitEntity, Projectile projectile) {
-        projectile.getWorld().spawnParticle(Particle.BLOCK_CRACK, projectile.getLocation(),
+        projectile.getWorld().spawnParticle(Particle.BLOCK, projectile.getLocation(),
                 10, 0, 0, 0, 0.2, Material.REDSTONE_BLOCK.createBlockData());
         projectile.getWorld().playSound(projectile.getLocation(), Sound.BLOCK_STONE_PLACE, 1, 1);
     }

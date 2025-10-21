@@ -10,7 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -92,7 +92,17 @@ public abstract class Monster {
     }
 
     protected NearestAttackableTargetGoal<net.minecraft.world.entity.player.Player> getPlayerGoal() {
-        return new NearestAttackableTargetGoal<>(getNmsMob(), net.minecraft.world.entity.player.Player.class, false, p -> !HauntedGameMode.getGameContext().player(p.getUUID()).isDead());
+        net.minecraft.world.entity.Mob mob = getNmsMob();
+        if (mob == null) {
+            throw new IllegalStateException("Monster entity is not a mob");
+        }
+        return new NearestAttackableTargetGoal<>(
+                mob,
+                net.minecraft.world.entity.player.Player.class,
+                false,
+                (target, level) -> target instanceof net.minecraft.world.entity.player.Player player &&
+                        !HauntedGameMode.getGameContext().player(player.getUUID()).handle().isDead()
+        );
     }
 
     public void updateTarget() {
@@ -111,7 +121,7 @@ public abstract class Monster {
     }
 
     private List<Player> getAlivePlayers() {
-        return HauntedGameMode.getGameContext().alivePlayers().stream().map(GamePlayer::getPlayer).collect(Collectors.toList());
+        return HauntedGameMode.getGameContext().alivePlayers().stream().map(GamePlayer::handle).collect(Collectors.toList());
     }
 
     public Player getNearestPlayer() {
@@ -120,7 +130,7 @@ public abstract class Monster {
 
     public Player getNearestPlayer(Predicate<Player> predicate) {
         List<Player> players = getAlivePlayers();
-        if (players.size() == 1) return players.get(0);
+        if (players.size() == 1) return players.getFirst();
         Location loc = entity.getLocation();
         double distance = 0;
         Player player = null;
@@ -136,7 +146,7 @@ public abstract class Monster {
     }
 
     public void setMaxHealth(int health) {
-        entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        entity.getAttribute(Attribute.MAX_HEALTH).setBaseValue(health);
     }
 
     public void moveTo(Location location) {
@@ -171,7 +181,7 @@ public abstract class Monster {
     }
 
     private void updateAttackDamageFromEntity() {
-        @Nullable AttributeInstance attribute = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+        @Nullable AttributeInstance attribute = entity.getAttribute(Attribute.ATTACK_DAMAGE);
         if (attribute == null) this.attackDamage = 0;
         else this.attackDamage = attribute.getValue();
     }
@@ -185,11 +195,11 @@ public abstract class Monster {
     }
 
     public void setAttackDamage(double attackDamage) {
-        setAttribute(Attribute.GENERIC_ATTACK_DAMAGE, attackDamage);
+        setAttribute(Attribute.ATTACK_DAMAGE, attackDamage);
     }
 
     public void setMovementSpeed(double speed) {
-        setAttribute(Attribute.GENERIC_MOVEMENT_SPEED, speed);
+        setAttribute(Attribute.MOVEMENT_SPEED, speed);
     }
 
     /**
@@ -198,7 +208,7 @@ public abstract class Monster {
      * @param damager
      */
     public void handleDamage(double damage, Entity damager) {
-        if (entity.getPassengers().size() > 0) {
+        if (!entity.getPassengers().isEmpty()) {
             entity.getPassengers().forEach(e -> {
                 if (!e.isInvulnerable() && e instanceof LivingEntity le) le.damage(damage, damager);
             });

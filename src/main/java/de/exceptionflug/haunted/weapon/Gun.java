@@ -6,7 +6,6 @@ import de.exceptionflug.projectvenom.game.GameContext;
 import de.exceptionflug.projectvenom.game.feature.hotbar.HotbarItemComponent;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -86,15 +85,15 @@ public class Gun implements Weapon {
                     this.slot = slot;
                     lastShot = System.currentTimeMillis();
                     rounds--;
-                    player.getInventory().setItem(slot, updateItem());
-                    player.getWorld().playSound(player.getLocation(), gunType.shootSound(), 1, gunType.shootSoundPitch());
+                    player.handle().getInventory().setItem(slot, updateItem());
+                    player.handle().getWorld().playSound(player.handle().getLocation(), gunType.shootSound(), 1, gunType.shootSoundPitch());
                     for (int j = 0; j < gunType().bulletsPerShot(); j++) {
                         launchProjectile();
                     }
                     if (gunType.recoil() > 0) {
-                        Vector direction = player.getLocation().getDirection();
+                        Vector direction = player.handle().getLocation().getDirection();
                         direction.setY(0);
-                        player.setVelocity(direction.multiply(gunType.recoil() * -1));
+                        player.handle().setVelocity(direction.multiply(gunType.recoil() * -1));
                     }
                     if (rounds == 0 && ammunition > 0) {
                         reload();
@@ -111,16 +110,16 @@ public class Gun implements Weapon {
     }
 
     private void launchProjectile() {
-        Vector direction = player.getLocation().getDirection();
+        Vector direction = player.handle().getLocation().getDirection();
         if (gunType.spread() != 0) {
             double spreadX = ThreadLocalRandom.current().nextDouble(-gunType().spread(), gunType().spread());
             double spreadY = ThreadLocalRandom.current().nextDouble(-gunType().spread(), gunType().spread());
             double spreadZ = ThreadLocalRandom.current().nextDouble(-gunType().spread(), gunType().spread());
             direction.add(new Vector(spreadX, spreadY, spreadZ));
         }
-        Projectile projectile = player.launchProjectile(gunType.projectileType(), direction.multiply(gunType.speed()));
+        Projectile projectile = player.handle().launchProjectile(gunType.projectileType(), direction.multiply(gunType.speed()));
         projectile.getPersistentDataContainer().set(DAMAGE_KEY, PersistentDataType.DOUBLE, gunType.damage());
-        projectile.getPersistentDataContainer().set(SHOOTER_KEY, PersistentDataType.STRING, player.getUniqueId().toString());
+        projectile.getPersistentDataContainer().set(SHOOTER_KEY, PersistentDataType.STRING, player.handle().getUniqueId().toString());
         if (projectile instanceof AbstractArrow) {
             ((AbstractArrow) projectile).setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
             ((AbstractArrow) projectile).setDamage(gunType.damage());
@@ -132,7 +131,7 @@ public class Gun implements Weapon {
             ItemStack potionStack = new ItemStack(gunType.projectileType().equals(LingeringPotion.class) ? Material.LINGERING_POTION : Material.SPLASH_POTION);
             PotionMeta meta = (PotionMeta) potionStack.getItemMeta();
             meta.setColor(Color.RED);
-            meta.addCustomEffect(new PotionEffect(PotionEffectType.HARM, 2, 2, true, true, false), true);
+            meta.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 2, 2, true, true, false), true);
             potionStack.setItemMeta(meta);
             potion.setItem(potionStack);
         }
@@ -146,12 +145,12 @@ public class Gun implements Weapon {
             return;
         }
         if (ammunition == 0) {
-            player.playSound(player.getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 2, 2);
+            player.handle().playSound(player.handle().getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 2, 2);
             return;
         }
         reloading = true;
-        player.getInventory().setItem(slot, updateItem());
-        player.getWorld().playSound(player.getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
+        player.handle().getInventory().setItem(slot, updateItem());
+        player.handle().getWorld().playSound(player.handle().getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         Bukkit.getScheduler().runTaskLater(gameContext.plugin(), () -> {
             if (!gameContext.phase().ingamePhase() || destroyed) {
                 return;
@@ -160,8 +159,8 @@ public class Gun implements Weapon {
             rounds = ammunition >= needed ? rounds + needed : rounds + ammunition;
             ammunition -= rounds;
             reloading = false;
-            player.getInventory().setItem(slot, updateItem());
-            player.getWorld().playSound(player.getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
+            player.handle().getInventory().setItem(slot, updateItem());
+            player.handle().getWorld().playSound(player.handle().getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         }, gunType().reloadDelay());
 
         new BukkitRunnable() {
@@ -183,7 +182,7 @@ public class Gun implements Weapon {
                     damage.setDamage((itemStack.getType().getMaxDurability()-1) - (int) (itemStack.getType().getMaxDurability() * progress));
                 }
                 itemStack.setItemMeta(meta);
-                player.getInventory().setItem(slot, itemStack);
+                player.handle().getInventory().setItem(slot, itemStack);
                 count++;
             }
         }.runTaskTimer(gameContext().plugin(),0,1);
@@ -198,7 +197,7 @@ public class Gun implements Weapon {
 
     @Override
     public void give(HauntedPlayer player, int slot) {
-        HotbarItemComponent.addItem(player, slot, item, (pp, event) -> {
+        HotbarItemComponent.addItem(player.handle(), slot, item, (pp, event) -> {
             if (player.spectator()) {
                 return;
             }

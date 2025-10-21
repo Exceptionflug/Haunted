@@ -20,11 +20,11 @@ public abstract class GateMonster extends Monster {
     public void spawn(LivingEntity entity, Location location) {
         super.spawn(entity, location);
         if (getNmsEntity() instanceof PathfinderMob mob) {
-            mob.goalSelector.removeAllGoals();
+            mob.goalSelector.removeAllGoals(goal -> true);
             if (shouldAddMeleeAttackGoal) mob.goalSelector.addGoal(4, new MeleeAttackGoal(mob, 1.0D, true));
             mob.goalSelector.addGoal(6, new LookAtPlayerGoal(mob, Player.class, 8.0F));
             mob.goalSelector.addGoal(6, new RandomLookAroundGoal(mob));
-            mob.targetSelector.removeAllGoals();
+            mob.targetSelector.removeAllGoals(goal -> true);
             mob.targetSelector.addGoal(1, getPlayerGoal());
         }
     }

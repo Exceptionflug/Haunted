@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import de.exceptionflug.haunted.monster.Monster;
 import de.exceptionflug.haunted.phases.HauntedIngamePhase;
 import de.exceptionflug.projectvenom.game.GameContext;
-import de.exceptionflug.projectvenom.game.aop.Component;
+import de.exceptionflug.projectvenom.game.aop.Singleton;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -13,7 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 
-@Component
+@Singleton
 public class EntityTargetListener implements Listener {
 
     private final GameContext context;

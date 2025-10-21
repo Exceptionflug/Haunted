@@ -2,14 +2,13 @@ package de.exceptionflug.haunted.monsters.goals;
 
 import de.exceptionflug.haunted.monster.Monster;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -72,11 +71,11 @@ public class SelfExplodeGoal extends Goal {
     }
 
     private void explode() {
-        this.mob.die(DamageSource.explosion((LivingEntity) null));
+        this.mob.die(this.mob.damageSources().explosion(this.mob, null));
         this.mob.discard();
-        this.mob.playSound(SoundEvents.GENERIC_EXPLODE, 4.0F, 1.0F);
+        this.mob.playSound(SoundEvents.GENERIC_EXPLODE.value(), 4.0F, 1.0F);
         //this.mob.level.addParticle(ParticleTypes.EXPLOSION, this.mob.position().x, this.mob.position().y, this.mob.position().z, 1.0D, 0.0D, 0.0D);
-        this.monster.getEntity().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, this.monster.getEntity().getLocation(), 10);
+        this.monster.getEntity().getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, this.monster.getEntity().getLocation(), 10);
         this.monster.getEntity().getWorld().getNearbyEntities(this.monster.getEntity().getLocation(), 4, 2, 4, entity -> entity instanceof Player)
                 .forEach(entity -> ((org.bukkit.entity.LivingEntity) entity).damage(5, this.monster.getEntity()));
     }

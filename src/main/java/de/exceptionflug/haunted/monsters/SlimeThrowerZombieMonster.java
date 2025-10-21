@@ -42,7 +42,7 @@ public class SlimeThrowerZombieMonster extends ZombieMonster implements RangedMo
     @Override
     public void performProjectileHit(Projectile projectile, LivingEntity target) {
         if (target instanceof Player player) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 10, 0));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 10, 0));
         }
     }
 

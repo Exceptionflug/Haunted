@@ -5,9 +5,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftArmorStand;
-import org.bukkit.craftbukkit.v1_19_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.util.CraftChatMessage;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -20,7 +20,7 @@ public class EntityUtils {
     public static Entity spawnCleanEntity(Location location, EntityType entityType) {
         CraftWorld craftWorld = ((CraftWorld) location.getWorld());
         if (craftWorld != null) {
-            net.minecraft.world.entity.Entity nmsEntity = craftWorld.createEntity(location, entityType.getEntityClass());
+            net.minecraft.world.entity.Entity nmsEntity = (net.minecraft.world.entity.Entity) craftWorld.createEntity(location, entityType.getEntityClass());
             craftWorld.getHandle().addFreshEntity(nmsEntity, CreatureSpawnEvent.SpawnReason.CUSTOM);
             return nmsEntity.getBukkitEntity();
         }

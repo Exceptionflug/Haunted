@@ -49,7 +49,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
     }
 
     private boolean tryFindBlock() {
-        if (this.blockPos != null && this.isValidTarget(this.mob.level, this.blockPos)) {
+        if (this.blockPos != null && this.isValidTarget(this.mob.level(), this.blockPos)) {
             return true;
         } else if (this.findNearestBlock()) {
             this.blockPos = GateUtils.getDamageableGateBlock(this.blockPos);
@@ -80,7 +80,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
         super.tick();
         if ((isReachedTarget() || breakTime > 0) && this.blockPos != null) {
             if (breakTime % randomHitInterval == 0) {
-                playDestroyProgressSound(this.mob.level, blockPos);
+                playDestroyProgressSound(this.mob.level(), blockPos);
                 if (!this.mob.swinging) {
                     this.mob.getLookControl().setLookAt(this.blockPos.getX(), this.blockPos.getY(), this.blockPos.getZ());
                     this.mob.swing(this.mob.getUsedItemHand());
@@ -96,7 +96,7 @@ public class AttackGateGoal extends MoveToBlockGoal {
             ++this.breakTime;
             int i = (int)((float)this.breakTime / (float)blockBreakTime * 10.0F);
             if (i != this.lastBreakProgress) {
-                this.mob.level.destroyBlockProgress(this.mob.getId(), this.blockPos, i);
+                this.mob.level().destroyBlockProgress(this.mob.getId(), this.blockPos, i);
                 this.lastBreakProgress = i;
             }
 

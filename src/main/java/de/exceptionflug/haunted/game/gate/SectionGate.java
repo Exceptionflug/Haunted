@@ -102,7 +102,7 @@ public final class SectionGate {
         for (Location location : region.locations()) {
             Block block = location.getBlock();
             if (gateMaterials().contains(block.getType().name())) {
-                block.getWorld().spawnParticle(Particle.BLOCK_CRACK, block.getLocation().add(0.5, 0, 0.5),
+                block.getWorld().spawnParticle(Particle.BLOCK, block.getLocation().add(0.5, 0, 0.5),
                         5, 0, 0, 0, 0.2, block.getBlockData());
                 block.getWorld().playSound(block.getLocation(), block.getBlockData().getSoundGroup().getBreakSound(), 1, 1);
                 block.setType(Material.AIR);

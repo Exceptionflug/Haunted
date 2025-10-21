@@ -30,7 +30,7 @@ public class SkeletonMonster extends GateMonster implements RangedMonster {
 
     @Override
     public void performProjectileHit(Projectile projectile, LivingEntity target) {
-        spawnParticle(Particle.VILLAGER_HAPPY, 2);
+        spawnParticle(Particle.HAPPY_VILLAGER, 2);
     }
 
     @Override

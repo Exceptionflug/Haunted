@@ -2,7 +2,6 @@ package de.exceptionflug.haunted.armor;
 
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.shop.Shop;
-import de.exceptionflug.mccommons.config.spigot.Message;
 import org.bukkit.Location;
 import org.bukkit.inventory.EquipmentSlot;
 
@@ -41,16 +40,22 @@ public class ArmorShop implements Shop {
     @Override
     public boolean interact(HauntedPlayer player) {
         if (player.gold() < price) {
-            Message.send(player, player.context().messageConfiguration(), "Messages.canNotAfford", "§cDu kannst dir das nicht leisten!");
+            player.i18n().sendMessage(player.handle(), "Messages.canNotAfford", c -> {
+                c.setDefaultMessage(() -> "§cDu kannst dir das nicht leisten!");
+            });
             return false;
         }
         if (player.helmetArmor() != null) {
             if (player.helmetArmor().getType().ordinal() > armorType.ordinal()) {
-                Message.send(player, player.context().messageConfiguration(), "Messages.armor.hasStronger", "§cDu hast bereits bessere Rüstung!");
+                player.i18n().sendMessage(player.handle(), "Messages.armor.hasStronger", c -> {
+                    c.setDefaultMessage(() -> "§cDu hast bereits bessere Rüstung!");
+                });
                 return false;
             }
             if (player.helmetArmor().getType().ordinal() == armorType.ordinal()) {
-                Message.send(player, player.context().messageConfiguration(), "Messages.armor.hasSame", "§cDu hast bereits diese Rüstung!");
+                player.i18n().sendMessage(player.handle(), "Messages.armor.hasSame", c -> {
+                    c.setDefaultMessage(() -> "§cDu hast bereits diese Rüstung!");
+                });
                 return false;
             }
         }
