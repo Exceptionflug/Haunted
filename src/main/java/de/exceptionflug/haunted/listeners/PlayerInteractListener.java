@@ -93,7 +93,7 @@ public final class PlayerInteractListener implements Listener {
                 }
                 player.gold(player.gold() - electricitySwitch.price());
                 electricitySwitch.pulled(true);
-                electricitySwitch.hologram().despawn();
+                electricitySwitch.hologram().disable();
                 context.<HauntedIngamePhase>phase().electricity(player, true);
             }
         }

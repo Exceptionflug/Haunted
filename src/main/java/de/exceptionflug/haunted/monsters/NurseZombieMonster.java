@@ -2,7 +2,7 @@ package de.exceptionflug.haunted.monsters;
 
 import de.exceptionflug.haunted.EntityUtils;
 import de.exceptionflug.haunted.ItemModifier;
-import de.exceptionflug.mccommons.inventories.spigot.utils.ItemUtils;
+import de.exceptionflug.haunted.util.ItemUtils;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;

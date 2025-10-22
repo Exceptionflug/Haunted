@@ -1,19 +1,9 @@
 package de.exceptionflug.haunted.npc;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.*;
-import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import com.mojang.authlib.GameProfile;
-import de.exceptionflug.haunted.HauntedGameMode;
-import de.exceptionflug.mccommons.core.packetwrapper.*;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.BlockFace;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Collections;
+
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -36,18 +26,23 @@ public class NPC {
     }
 
     public void spawn() {
+        // TODO Use New 1.21.9 Feature
+        // No Backwards compatibility?
+        /*
         sendPacket(createPlayerInfoPacket(EnumWrappers.PlayerInfoAction.ADD_PLAYER));
         sendPacket(createSpawnPacket());
         sendPacket(createLayingPacket());
         Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(HauntedGameMode.class), () -> {
             sendPacket(createPlayerInfoPacket(EnumWrappers.PlayerInfoAction.REMOVE_PLAYER));
         }, 10);
+        */
     }
 
     public void despawn() {
-        sendPacket(createRemoveEntityPacket());
+        //sendPacket(createRemoveEntityPacket());
     }
 
+    /*
     private void sendPacket(PacketContainer packetContainer) {
         Bukkit.getOnlinePlayers().forEach(player -> {
             try {
@@ -94,4 +89,5 @@ public class NPC {
         metadata.setMetadata(dataWatcher.getWatchableObjects());
         return metadata.getHandle();
     }
+    */
 }

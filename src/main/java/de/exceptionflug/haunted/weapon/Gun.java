@@ -145,7 +145,7 @@ public class Gun implements Weapon {
             return;
         }
         if (ammunition == 0) {
-            player.handle().playSound(player.handle().getLocation(), Sound.ITEM_FLINTANDSTEEL_USE, 2, 2);
+            player.playSound(Sound.ITEM_FLINTANDSTEEL_USE, 2, 2);
             return;
         }
         reloading = true;
@@ -179,7 +179,10 @@ public class Gun implements Weapon {
                 ItemStack itemStack = updateItem();
                 ItemMeta meta = itemStack.getItemMeta();
                 if (meta instanceof Damageable damage) {
-                    damage.setDamage((itemStack.getType().getMaxDurability()-1) - (int) (itemStack.getType().getMaxDurability() * progress));
+                    int calculatedDamage = (itemStack.getType().getMaxDurability()-1) - (int) (itemStack.getType().getMaxDurability() * progress);
+                    if (calculatedDamage > 0) {
+                        damage.setDamage(calculatedDamage);
+                    }
                 }
                 itemStack.setItemMeta(meta);
                 player.handle().getInventory().setItem(slot, itemStack);

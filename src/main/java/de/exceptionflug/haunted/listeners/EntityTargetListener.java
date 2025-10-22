@@ -37,9 +37,12 @@ public class EntityTargetListener implements Listener {
 
     @EventHandler
     public void onTargetSwitch(EntityTargetEvent event) {
+        if (!context.phase().ingamePhase()) return;
         if (event.getReason() == EntityTargetEvent.TargetReason.FORGOT_TARGET) {
             Monster monster = context.<HauntedIngamePhase>phase().wave().monsterByEntity(event.getEntity());
-            monster.updateTarget();
+            if (monster != null) {
+                monster.updateTarget();
+            }
         }
     }
 

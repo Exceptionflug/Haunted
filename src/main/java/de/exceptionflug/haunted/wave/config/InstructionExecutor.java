@@ -245,7 +245,7 @@ public class InstructionExecutor {
         float pitch = ((Double) statement.arguments()[2]).floatValue();
         Bukkit.getScheduler().runTask(wave.context().plugin(), () -> {
             for (GamePlayer player : wave.context().players()) {
-                player.handle().playSound(player.handle().getLocation(), (Sound) statement.arguments()[0], volume, pitch);
+                player.playSound((Sound) statement.arguments()[0], volume, pitch);
             }
         });
         return null;
@@ -254,7 +254,7 @@ public class InstructionExecutor {
     private Void executeCinematic(Statement statement) {
         if (statement.arguments()[1] instanceof WaveConfigurationParser.CodeBlock block) {
             Cutscene cutscene = new Cutscene(wave.context().plugin());
-            cutscene.players().addAll(wave.context().players());
+            cutscene.players().addAll(wave.context().players().stream().map(GamePlayer::handle).toList());
             for (Statement insn : block.statements()) {
                 if (insn.type() == Statement.InstructionType.VERTEX) {
                     Location location = (Location) insn.arguments()[0];

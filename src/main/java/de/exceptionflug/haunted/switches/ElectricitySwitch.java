@@ -1,10 +1,13 @@
 package de.exceptionflug.haunted.switches;
 
-import de.exceptionflug.mccommons.holograms.Hologram;
-import de.exceptionflug.mccommons.holograms.Holograms;
+import eu.decentsoftware.holograms.api.DHAPI;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.bukkit.Location;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Date: 21.09.2021
@@ -24,10 +27,9 @@ public class ElectricitySwitch {
     private Hologram hologram;
 
     public void spawn() {
-        hologram = Holograms.createHologram(location);
-        hologram.appendLine(name);
-        hologram.appendLine("§7Preis: §b" + price + " Gold");
-        hologram.appendLine("§7(Rechtklick auf Hebel)");
+        hologram = DHAPI.createHologram("ElectricitySwitch_" + UUID.randomUUID(),
+                location,
+                List.of(name, "§7Preis: §b" + price + " Gold", "§7(Rechtklick auf Hebel)"));
     }
 
 

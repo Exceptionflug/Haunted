@@ -20,7 +20,7 @@ public class EntityUtils {
     public static Entity spawnCleanEntity(Location location, EntityType entityType) {
         CraftWorld craftWorld = ((CraftWorld) location.getWorld());
         if (craftWorld != null) {
-            net.minecraft.world.entity.Entity nmsEntity = (net.minecraft.world.entity.Entity) craftWorld.createEntity(location, entityType.getEntityClass());
+            net.minecraft.world.entity.Entity nmsEntity = craftWorld.createEntity(location, entityType.getEntityClass(), true);
             craftWorld.getHandle().addFreshEntity(nmsEntity, CreatureSpawnEvent.SpawnReason.CUSTOM);
             return nmsEntity.getBukkitEntity();
         }

@@ -2,7 +2,7 @@ package de.exceptionflug.haunted.monsters;
 
 import de.exceptionflug.haunted.ItemModifier;
 import de.exceptionflug.haunted.monsters.goals.ThrowRangedAttackGoal;
-import de.exceptionflug.mccommons.inventories.spigot.utils.ItemUtils;
+import de.exceptionflug.haunted.util.ItemUtils;
 import net.minecraft.world.entity.PathfinderMob;
 import org.bukkit.Color;
 import org.bukkit.Location;

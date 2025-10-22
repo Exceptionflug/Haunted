@@ -3,7 +3,7 @@ package de.exceptionflug.haunted.monsters;
 import de.exceptionflug.haunted.EntityUtils;
 import de.exceptionflug.haunted.monster.GateMonster;
 import de.exceptionflug.haunted.monsters.goals.ThrowRangedAttackGoal;
-import de.exceptionflug.mccommons.inventories.spigot.utils.ItemUtils;
+import de.exceptionflug.haunted.util.ItemUtils;
 import net.minecraft.world.entity.PathfinderMob;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,11 +29,6 @@ public class FungusThrowerMonster extends GateMonster implements RangedMonster {
         ItemUtils.setSkullTexture(head, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWIyMDY0MzkwZTc5ZDllNTRjY2I0MThiMDczMzE1M2NmOTkyM2ZjNGE4ZDE0YWIxZDJiN2VmNTk2ODgzMWM5MyJ9fX0=");
         piglin.getEquipment().setHelmet(head);
         piglin.getEquipment().setItemInMainHand(new ItemStack(Material.WARPED_FUNGUS));
-    }
-
-    @Override
-    public boolean canBreakGate() {
-        return true;
     }
 
     @Override

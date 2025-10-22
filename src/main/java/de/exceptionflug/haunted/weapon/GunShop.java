@@ -2,10 +2,13 @@ package de.exceptionflug.haunted.weapon;
 
 import de.exceptionflug.haunted.game.HauntedPlayer;
 import de.exceptionflug.haunted.shop.Shop;
-import de.exceptionflug.mccommons.holograms.Hologram;
-import de.exceptionflug.mccommons.holograms.Holograms;
+import eu.decentsoftware.holograms.api.DHAPI;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Date: 17.09.2021
@@ -35,22 +38,26 @@ public class GunShop implements Shop {
     @Override
     public void spawn() {
         if (hologram != null) {
-            if (!hologram.isDespawned()) {
+            if (!hologram.isDisabled()) {
                 return;
             }
-            hologram.spawn();
+            hologram.enable();
             return;
         }
-        hologram = Holograms.createHologram(location);
-        hologram.appendLine("§b" + gunType.displayName());
-        hologram.appendLine(new ItemStack(gunType.itemType()));
-        hologram.appendLine("§7Preis: §b" + weaponPrice + " Gold");
-        hologram.appendLine("§7(Rechtsklick auf Knopf)");
+        hologram = DHAPI.createHologram("GunShop_" + UUID.randomUUID(),
+                location,
+                List.of(
+                        "§b" + gunType.displayName(),
+                        "", // Item
+                        "§7Preis: §b" + weaponPrice + " Gold",
+                        "§7(Rechtsklick auf Knopf)"
+                    ));
+        DHAPI.setHologramLine(hologram, 1, new ItemStack(gunType.itemType()));
     }
 
     @Override
     public void despawn() {
-        hologram.despawn();
+        hologram.disable();
     }
 
     @Override
@@ -90,7 +97,7 @@ public class GunShop implements Shop {
             existingGun.ammunition(gunType.maxAmmunition());
             existingGun.rounds(gunType.rounds());
             player.handle().getInventory().setItem(existingGun.slot(), existingGun.updateItem());
-            player.handle().playSound(player.handle().getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
+            player.playSound(gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         } else {
             Gun gun = new Gun(gunType, player, player.context());
             if (player.primaryWeapon() == null) {
@@ -111,7 +118,7 @@ public class GunShop implements Shop {
                 });
                 return false;
             }
-            player.handle().playSound(player.handle().getLocation(), gunType.reloadSound(), 1, gunType.reloadSoundPitch());
+            player.playSound(gunType.reloadSound(), 1, gunType.reloadSoundPitch());
         }
         player.gold(player.gold() - weaponPrice);
         return true;

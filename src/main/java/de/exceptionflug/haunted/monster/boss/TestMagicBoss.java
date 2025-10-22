@@ -55,8 +55,8 @@ public class TestMagicBoss extends BossMonster {
                 if (evoker.isDead()) {
                     cancel();
                     bossBar.removeAll();
-                    context.players().forEach(player -> player.handle().playSound(player.handle().getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1));
-                    context.players().forEach(player -> player.handle().playSound(player.handle().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 0));
+                    context.players().forEach(player -> player.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, 1, 1));
+                    context.players().forEach(player -> player.playSound(Sound.ENTITY_PLAYER_LEVELUP, 1, 0));
                 }
             }
         }.runTaskTimer(context.plugin(), 5, 5);

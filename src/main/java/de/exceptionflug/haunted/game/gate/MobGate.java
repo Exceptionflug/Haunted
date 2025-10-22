@@ -2,8 +2,7 @@ package de.exceptionflug.haunted.game.gate;
 
 import de.exceptionflug.haunted.util.CuboidRegion;
 import de.exceptionflug.haunted.util.HighlightUtil;
-import de.exceptionflug.mccommons.holograms.Hologram;
-import de.exceptionflug.mccommons.holograms.Holograms;
+import eu.decentsoftware.holograms.api.DHAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -162,8 +162,9 @@ public final class MobGate {
     }
 
     public void asyncDebug() {
-        Hologram hologram = Holograms.createHologram(spawnLocation.clone().add(0, 1, 0));
-        hologram.appendLine("§7" + mapSection);
+        DHAPI.createHologram("MobGateDebug_" + UUID.randomUUID(),
+                spawnLocation.clone().add(0, 1, 0),
+                List.of("§7" + mapSection));
     }
 
     private static class MobGateBlock {

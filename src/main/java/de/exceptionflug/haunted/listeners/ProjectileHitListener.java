@@ -46,7 +46,7 @@ public final class ProjectileHitListener implements Listener {
             }
             spawnParticles(event.getHitEntity(), projectile);
         }
-        if (projectile.getShooter() != null && context.<HauntedIngamePhase>phase().wave().monsterByEntity((Entity) projectile.getShooter()) instanceof RangedMonster thrower && event.getHitEntity() instanceof LivingEntity livingEntity) {
+        if (projectile.getShooter() != null && context.phase().ingamePhase() && context.<HauntedIngamePhase>phase().wave().monsterByEntity((Entity) projectile.getShooter()) instanceof RangedMonster thrower && event.getHitEntity() instanceof LivingEntity livingEntity) {
             thrower.performProjectileHit(projectile, livingEntity);
             double damage = thrower.getProjectileDamage(livingEntity);
             if (damage > 0) livingEntity.damage(damage);

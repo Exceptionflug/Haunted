@@ -4,4 +4,4 @@ version: 1.0
 main: de.exceptionflug.haunted.HauntedGameMode
 api-version: 1.21.6
 description: Game mode side project inspired by the Hypixel Zombies PvE mode
-depend: [Venom]
+depend: [Venom, DecentHolograms]

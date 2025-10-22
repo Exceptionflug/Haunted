@@ -73,7 +73,7 @@ public final class EntityDamageByEntityListener implements Listener {
                 if (projectile.getPersistentDataContainer().has(Gun.HEADSHOT_KEY, PersistentDataType.BYTE)) {
                     shooter.giveGold(10);
                     EntityUtils.spawnPointsHologram(event.getEntity().getLocation(), "§6+10");
-                    shooter.handle().playSound(shooter.handle().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
+                    shooter.playSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 2);
                     event.setDamage(EntityDamageEvent.DamageModifier.BASE, event.getDamage() * 1.5D);
                 } else {
                     shooter.giveGold(5);

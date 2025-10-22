@@ -14,6 +14,8 @@ import de.exceptionflug.projectvenom.game.phases.IngamePhase;
 import de.exceptionflug.projectvenom.game.player.GamePlayer;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import net.megavex.scoreboardlibrary.api.sidebar.component.ComponentSidebarLayout;
+import net.megavex.scoreboardlibrary.api.sidebar.component.SidebarComponent;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -107,7 +109,7 @@ public class HauntedIngamePhase extends IngamePhase {
 
     private void startGameLoop() {
         context().<HauntedPlayer>players().forEach(player -> {
-            player.scoreboard().format("%time%", h -> DurationFormatUtils.formatDuration(System.currentTimeMillis() - startedSince, "mm:ss", true));
+            updateScoreboard(player);
             player.handle().getInventory().setHeldItemSlot(0);
             player.handle().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 155, false, false));
         });
@@ -151,6 +153,61 @@ public class HauntedIngamePhase extends IngamePhase {
             initWave(wave);
         }
     }
+
+    public void updateScoreboard(HauntedPlayer player) {
+        SidebarComponent lines = SidebarComponent.builder()
+                .addDynamicLine(() -> player.i18n().getMessage(player.handle(), "Scoreboard.section", c -> {
+                    c.setDefaultMessage(() -> "&7» &b%section%");
+                    c.setArgument("section", player.currentSection());
+                }))
+                .addBlankLine()
+                .addDynamicLine(() -> player.i18n().getMessage(player.handle(), "Scoreboard.wave", c -> {
+                    c.setDefaultMessage(() -> "&7Welle: &b%wave%");
+                    String displayWave;
+                    if (!context().phase().ingamePhase()) {
+                        displayWave = "0";
+                    } else {
+                        displayWave = Integer.toString(context().<HauntedIngamePhase>phase().currentWave());
+                    }
+                    c.setArgument("wave", displayWave);
+                }))
+                .addDynamicLine(() -> player.i18n().getMessage(player.handle(), "Scoreboard.remaining", c -> {
+                    c.setDefaultMessage(() -> "&7Monster: &b%remaining%");
+                    String displayRemaining;
+                    if (!context().phase().ingamePhase()) {
+                        displayRemaining = "0";
+                    } else {
+                        HauntedIngamePhase phase = context().phase();
+                        if (phase.wave() != null) {
+                            displayRemaining = Integer.toString(phase.wave().remainingMonsters());
+                        } else {
+                            displayRemaining = "0";
+                        }
+                    }
+                    c.setArgument("remaining", displayRemaining);
+                }))
+                .addDynamicLine(() -> player.i18n().getMessage(player.handle(), "Scoreboard.gold", c -> {
+                    c.setDefaultMessage(() -> "&7Gold: &b%gold%");
+                    c.setArgument("gold", Integer.toString(player.gold()));
+                }))
+                .addBlankLine()
+                .addDynamicLine(() -> player.i18n().getMessage(player.handle(), "Scoreboard.kills", c -> {
+                    c.setDefaultMessage(() -> "&7Kills: &b%kills%");
+                    c.setArgument("kills", Integer.toString(player.kills()));
+                }))
+                .addBlankLine()
+                .build();
+
+        ComponentSidebarLayout layout = new ComponentSidebarLayout(
+                SidebarComponent.dynamicLine(() -> player.i18n().getMessage(player.handle(), "Scoreboard.title", c -> {
+                    c.setDefaultMessage(() -> "&lHAUNTED &8| &7%time%");
+                    c.setArgument("time", DurationFormatUtils.formatDuration(System.currentTimeMillis() - startedSince, "mm:ss", true));
+                })),
+                lines
+        );
+        layout.apply(player.scoreboard());
+    }
+
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
@@ -200,7 +257,7 @@ public class HauntedIngamePhase extends IngamePhase {
             HauntedPlayer player = context().player(event.getEntity().getKiller());
             if (player != null) {
                 player.kills(player.kills() + 1);
-                player.scoreboard().update();
+                updateScoreboard(player);
             }
         }
     }

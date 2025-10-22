@@ -1,9 +1,8 @@
 package de.exceptionflug.haunted.game.gate;
 
 import de.exceptionflug.haunted.util.CuboidRegion;
-import de.exceptionflug.mccommons.holograms.Hologram;
-import de.exceptionflug.mccommons.holograms.Holograms;
-import de.exceptionflug.mccommons.holograms.line.TextHologramLine;
+import eu.decentsoftware.holograms.api.DHAPI;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Location;
@@ -11,7 +10,10 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Date: 17.08.2021
@@ -31,8 +33,6 @@ public final class SectionGate {
     private final boolean requiresPower;
     private Hologram hologram;
     private Hologram hologram2;
-    private TextHologramLine powerInteractLine;
-    private TextHologramLine powerInteractLine2;
 
     public SectionGate(CuboidRegion region, Set<String> gateMaterials, Location hologramLocation, Location hologramLocation2, String displayName, int price, boolean requiresPower) {
         this.region = region;
@@ -46,55 +46,49 @@ public final class SectionGate {
 
     public void spawnHologram() {
         if (hologram != null) {
-            if (!hologram.isDespawned()) {
+            if (!hologram.isDisabled()) {
                 return;
             }
-            hologram.spawn();
+            hologram.enable();
             if (hologramLocation2 != null) {
-                hologram2.spawn();
+                hologram2.enable();
             }
             return;
         }
-        hologram = Holograms.createHologram(hologramLocation);
-        hologram.appendLine(displayName);
+        List<String> hologramLines = new ArrayList<>();
+        hologramLines.add(displayName);
         if (price != -1) {
-            hologram.appendLine("Preis: §b"+price+" Gold");
+            hologramLines.add("Preis: §b"+price+" Gold");
         }
         if (requiresPower) {
-            powerInteractLine = hologram.appendLine("§cBenötigt Strom");
+            hologramLines.add("§cBenötigt Strom");
         } else {
-            powerInteractLine = hologram.appendLine("§7(Rechtsklick auf Wand)");
+            hologramLines.add("§7(Rechtsklick auf Wand)");
         }
-        hologram.spawn();
+        hologram = DHAPI.createHologram("SectionGate_" + UUID.randomUUID(),
+                hologramLocation, hologramLines);
 
         if (hologramLocation2 != null) {
-            hologram2 = Holograms.createHologram(hologramLocation2);
-            hologram2.appendLine(displayName);
-            if (price != -1) {
-                hologram2.appendLine("Preis: §b"+price+" Gold");
-            }
-            if (requiresPower) {
-                powerInteractLine2 = hologram2.appendLine("§cBenötigt Strom");
-            } else {
-                powerInteractLine2 = hologram2.appendLine("§7(Rechtsklick auf Wand)");
-            }
-            hologram2.spawn();
+            hologram2 = DHAPI.createHologram("SectionGate_" + UUID.randomUUID(),
+                    hologramLocation2, hologramLines);
         }
     }
 
     public void despawn() {
-        hologram.despawn();
+        hologram.disable();
         if (hologram2 != null) {
-            hologram2.despawn();
+            hologram2.disable();
         }
     }
 
     public void electricity() {
         if (requiresPower) {
-            powerInteractLine.setText("§7(Rechtsklick auf Wand)");
-            if (powerInteractLine2 != null) {
-                powerInteractLine2.setText("§7(Rechtsklick auf Wand)");
+            int line = 1;
+            if (price != -1) {
+                line = 2;
             }
+            DHAPI.setHologramLine(hologram,  line, "§7(Rechtsklick auf Wand)");
+            DHAPI.setHologramLine(hologram2,  line, "§7(Rechtsklick auf Wand)");
         }
     }
 
@@ -108,10 +102,7 @@ public final class SectionGate {
                 block.setType(Material.AIR);
             }
         }
-        hologram.despawn();
-        if (hologram2 != null) {
-            hologram2.despawn();
-        }
+        despawn();
     }
 
     public boolean isGateBlock(Location location) {
