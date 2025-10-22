@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <paper.version>1.21.8-R0.1-SNAPSHOT</paper.version>
+        <paper.version>1.21.10-R0.1-SNAPSHOT</paper.version>
     </properties>
 
     <repositories>

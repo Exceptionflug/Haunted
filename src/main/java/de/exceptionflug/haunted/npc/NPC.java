@@ -21,8 +21,7 @@ public class NPC {
 
     public NPC(Location location, GameProfile gameProfile) {
         this.location = location;
-        this.gameProfile = new GameProfile(uuid, gameProfile.getName());
-        this.gameProfile.getProperties().putAll(gameProfile.getProperties());
+        this.gameProfile = new GameProfile(uuid, gameProfile.name(), gameProfile.properties());
     }
 
     public void spawn() {

@@ -2,6 +2,6 @@ name: Haunted
 author: Exceptionflug
 version: 1.0
 main: de.exceptionflug.haunted.HauntedGameMode
-api-version: 1.21.6
+api-version: 1.21.9
 description: Game mode side project inspired by the Hypixel Zombies PvE mode
 depend: [Venom, DecentHolograms]
