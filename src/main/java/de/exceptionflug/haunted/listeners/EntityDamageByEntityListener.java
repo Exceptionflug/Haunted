@@ -38,6 +38,7 @@ public final class EntityDamageByEntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent event) {
+        if (!gameContext.phase().ingamePhase()) return;
         if (event.getDamager() instanceof Player && event.getEntity() instanceof Player) {
             event.setCancelled(true);
             return;

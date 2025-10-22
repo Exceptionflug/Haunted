@@ -33,6 +33,7 @@ public final class ProjectileHitListener implements Listener {
 
     @EventHandler
     public void onHit(ProjectileHitEvent event) {
+        if (!context.phase().ingamePhase()) return;
         Projectile projectile = event.getEntity();
         if (event.getHitBlock() != null) {
             if (event.getHitBlock().getType() == Material.BARRIER) return;

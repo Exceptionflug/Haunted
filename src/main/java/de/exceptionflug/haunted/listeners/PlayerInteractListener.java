@@ -38,6 +38,7 @@ public final class PlayerInteractListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if (!context.phase().ingamePhase()) return;
         HauntedPlayer player = context.player(event.getPlayer());
         if (player.spectator() || !context.phase().ingamePhase()) {
             event.setCancelled(true);
