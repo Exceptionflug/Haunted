@@ -111,7 +111,7 @@ public class HauntedPlayer extends GamePlayer {
         respawnTimer = 30;
         setSpectator(false);
         if (revivable) {
-            i18n.broadcast(context().players(), "Messages.playerUnconscious", c -> {
+            i18n.broadcast(context().players().stream().map(GamePlayer::handle).toList(), "Messages.playerUnconscious", c -> {
                 c.setDefaultMessage(() -> "§6%player% §7ist außer Gefecht! Du hast 30 Sekunden Zeit ihn oder sie wiederzubeleben.");
                 c.setArgument("player", handle().getName());
             });
@@ -329,15 +329,21 @@ public class HauntedPlayer extends GamePlayer {
         checkRepairing();
         updateTabScores();
         if (dead && revivable) {
-            respawnTimer--;
-            handle().setLevel(respawnTimer);
-            String color = respawnTimer < 10 ? "§c" : "§e";
-            DHAPI.setHologramLine(sneakHologram, 1, color + respawnTimer + "s");
+            if (respawnTimer > 0) {
+                respawnTimer--;
+                handle().setLevel(respawnTimer);
+                String color = respawnTimer < 10 ? "§c" : "§e";
+                if (sneakHologram != null) {
+                    DHAPI.setHologramLine(sneakHologram, 1, color + respawnTimer + "s");
+                }
+            }
             if (respawnTimer != 0) {
                 handle().setExp(respawnTimer / 30F);
             } else {
                 revivable = false;
-                sneakHologram.destroy();
+                if (sneakHologram != null) {
+                    sneakHologram.destroy();
+                }
                 handle().sendTitle("§cDu bist gestorben!", "§7Du wirst am Anfang der nächsten Welle wiederbelebt", 10, 40, 10);
                 i18n.broadcast(context().players(), "Messages.playerDied", c -> {
                     c.setDefaultMessage(() -> "§6%player% §7ist gestorben! Er oder sie wird am Anfang der nächsten Welle wiederbelebt.");
