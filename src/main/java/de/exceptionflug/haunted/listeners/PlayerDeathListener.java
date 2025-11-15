@@ -31,8 +31,8 @@ public final class PlayerDeathListener implements Listener {
         try {
             event.getDrops().clear();
             event.deathMessage(null);
-            //event.setShouldDropExperience(false);
-            //event.setCancelled(true);
+            event.setShouldDropExperience(false);
+            event.setCancelled(true);
             HauntedPlayer player = gameContext.player(event.getEntity());
             if (player != null) {
                 player.playerDied();

@@ -58,7 +58,7 @@ public final class PlayerInteractListener implements Listener {
             }
             player.gold(player.gold() - sectionGate.price());
             sectionGate.unlock();
-            i18nContext.broadcast(context.players().stream().map(GamePlayer::handle).toList(), "Messages.gateOpened", c -> {
+            i18nContext.broadcast(context.bukkitPlayers(), "Messages.gateOpened", c -> {
                 c.setDefaultMessage(() -> "§6%player% §7hat das Tor %gate% §7geöffnet");
                 c.setArgument("player", player.handle().getName());
                 c.setArgument("gate", sectionGate.displayName());

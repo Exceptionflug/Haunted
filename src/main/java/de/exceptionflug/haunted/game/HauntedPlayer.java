@@ -32,7 +32,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -111,7 +110,7 @@ public class HauntedPlayer extends GamePlayer {
         respawnTimer = 30;
         setSpectator(false);
         if (revivable) {
-            i18n.broadcast(context().players().stream().map(GamePlayer::handle).toList(), "Messages.playerUnconscious", c -> {
+            i18n.broadcast(context().bukkitPlayers(), "Messages.playerUnconscious", c -> {
                 c.setDefaultMessage(() -> "§6%player% §7ist außer Gefecht! Du hast 30 Sekunden Zeit ihn oder sie wiederzubeleben.");
                 c.setArgument("player", handle().getName());
             });
@@ -126,7 +125,7 @@ public class HauntedPlayer extends GamePlayer {
     }
 
     public void createLayingBody(Location location) {
-        body = new NPC(location, ((CraftPlayer)handle()).getHandle().getGameProfile());
+        body = new NPC(location, handle().getPlayerProfile());
         body.spawn();
         Bukkit.getScheduler().runTaskAsynchronously(context().plugin(), () -> {
             sneakHologram = DHAPI.createHologram("Player_" + handle().getUniqueId() + "_sneak",
@@ -345,7 +344,7 @@ public class HauntedPlayer extends GamePlayer {
                     sneakHologram.destroy();
                 }
                 handle().sendTitle("§cDu bist gestorben!", "§7Du wirst am Anfang der nächsten Welle wiederbelebt", 10, 40, 10);
-                i18n.broadcast(context().players(), "Messages.playerDied", c -> {
+                i18n.broadcast(context().bukkitPlayers(), "Messages.playerDied", c -> {
                     c.setDefaultMessage(() -> "§6%player% §7ist gestorben! Er oder sie wird am Anfang der nächsten Welle wiederbelebt.");
                     c.setArgument("player", handle().getName());
                 });

@@ -87,7 +87,7 @@ public class HauntedIngamePhase extends IngamePhase {
         this.waveTime = System.currentTimeMillis();
         this.wave = wave;
         wave.enable();
-        i18nContext().broadcast(context().players().stream().map(GamePlayer::handle).toList(), "Messages.waveBroadcast", c -> {
+        i18nContext().broadcast(context().bukkitPlayers(), "Messages.waveBroadcast", c -> {
             c.setDefaultMessage(() -> "§7Welle §6%wave% §7beginnt!");
             c.setArgument("wave", Integer.toString(wave.wave()));
         });
@@ -97,7 +97,7 @@ public class HauntedIngamePhase extends IngamePhase {
         this.electricity = electricity;
         if (electricity) {
             context().players().forEach(player1 -> player1.playSound(Sound.ENTITY_WITHER_DEATH, 5, 1));
-            i18nContext().broadcast(context().players().stream().map(GamePlayer::handle).toList(), "Messages.electricityOn", c -> {
+            i18nContext().broadcast(context().bukkitPlayers(), "Messages.electricityOn", c -> {
                 c.setDefaultMessage(() -> "§6%player% §7hat die §bElektrizität §7aktiviert.");
                 c.setArgument("player", player.handle().getName());
             });
@@ -205,6 +205,7 @@ public class HauntedIngamePhase extends IngamePhase {
                 })),
                 lines
         );
+        System.out.println("Update scoreboard");
         layout.apply(player.scoreboard());
     }
 

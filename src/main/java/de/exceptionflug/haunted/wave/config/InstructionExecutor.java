@@ -254,7 +254,7 @@ public class InstructionExecutor {
     private Void executeCinematic(Statement statement) {
         if (statement.arguments()[1] instanceof WaveConfigurationParser.CodeBlock block) {
             Cutscene cutscene = new Cutscene(wave.context().plugin());
-            cutscene.players().addAll(wave.context().players().stream().map(GamePlayer::handle).toList());
+            cutscene.players().addAll(wave.context().bukkitPlayers());
             for (Statement insn : block.statements()) {
                 if (insn.type() == Statement.InstructionType.VERTEX) {
                     Location location = (Location) insn.arguments()[0];
